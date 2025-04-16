@@ -14,3 +14,9 @@ config.yaml
 load.py
 theo.py
 try.py
+notebook/mlruns/
+mlruns
+results/
+senti/
+recording.log
+results/checkpoint-500/

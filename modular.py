@@ -1,3 +1,4 @@
+# main.py
 import os
 import argparse
 from dotenv import load_dotenv
@@ -29,6 +30,9 @@ logger.info(f"Using model {model_name}")
 
 # LOAD AND PREPROCESS DATA ----------------------------
 df_train, df_validation = load_data()
+logger.info(f"Train DataFrame shape: {df_train.shape}")
+logger.info(f"Train DataFrame columns: {df_train.columns.tolist()}")
+logger.info(f"Sample rows:\n{df_train.head()}")
 
 # Tokenization
 tokenizer = BertTokenizer.from_pretrained(model_name)
