@@ -1,0 +1,36 @@
+FROM ubuntu:22.04
+
+# Install dependencies
+RUN apt-get -y update && \
+    apt-get install -y wget bzip2 curl && \
+    apt-get clean
+
+# Install Miniconda
+RUN wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh && \
+    bash miniconda.sh -b -p /opt/conda && \
+    rm miniconda.sh && \
+    /opt/conda/bin/conda init bash
+
+# Set the conda path
+ENV PATH="/opt/conda/bin:${PATH}"
+
+# Copy the environment.yml file (for Conda environment creation)
+COPY environment.yml .
+
+# Create the Conda environment from the environment.yml file
+RUN conda env create -f environment.yml
+
+# Activate the environment and ensure it’s available for subsequent steps
+SHELL ["conda", "run", "-n", "sentiment", "/bin/bash", "-c"]
+
+# Install any remaining dependencies from requirements.txt using pip (if necessary)
+COPY requirements.txt .
+RUN pip install -r requirements.txt
+
+# Copy the source code
+COPY src ./src
+COPY train.py .
+COPY app ./app
+
+# Set the entrypoint for the container
+CMD ["bash", "-c", "./app/run.sh"]
