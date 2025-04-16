@@ -10,3 +10,7 @@ twitter_training.parquet
 twitter_validation.parquet
 load_parquet.py
 .env
+config.yaml
+load.py
+theo.py
+try.py
