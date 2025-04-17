@@ -1,17 +1,3 @@
-twitter_training.csv
-twitter_validation.csv
 env
-config.yaml
-trash.ipynb
-bert
-test-import.py
-translate.py
-twitter_training.parquet
-twitter_validation.parquet
-load_parquet.py
 .env
-config.yaml
-load.py
-theo.py
-try.py
 notebook
