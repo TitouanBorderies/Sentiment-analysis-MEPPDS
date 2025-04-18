@@ -12,9 +12,8 @@ df_validation = df_validation.head(10).copy()
 train_encodings = tokenize_function(df_train)
 val_encodings = tokenize_function(df_validation)
 
-train_dataset = TweetDataset(train_encodings, df_train['label'].tolist())
-val_dataset = TweetDataset(val_encodings, df_validation['label'].tolist())
-
+train_dataset = TweetDataset(train_encodings, df_train["label"].tolist())
+val_dataset = TweetDataset(val_encodings, df_validation["label"].tolist())
 
 
 training_args = TrainingArguments(

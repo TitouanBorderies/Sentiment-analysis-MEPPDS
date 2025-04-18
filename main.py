@@ -10,7 +10,6 @@ dernier_message = get_last_message(client)
 path_model = os.environ.get("MODEL_PATH", "")
 model = CustomSentimentClassifier.from_pretrained(path_model)
 
-
 print("Dernier message de @lemonde.fr :")
 print(dernier_message)
 print("Son sentiment est " + model.infer_sentiment(dernier_message))
