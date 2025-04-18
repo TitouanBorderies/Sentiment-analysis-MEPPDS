@@ -1,18 +1,12 @@
 import os
 from utils import get_parquet_from_path
 
-from dotenv import load_dotenv
-
-load_dotenv()
-BUCKET = os.environ.get("BUCKET", "")
-endpoint = os.environ.get("ENDPOINT", "")
-PATH_TO_DATA = os.environ.get("PATH_TO_DATA", "")
-
-
-CHEMIN_FICHIER_TRAINING = "twitter_training.parquet"
-CHEMIN_FICHIER_VALIDATION = "twitter_validation.parquet"
 
 def load_data():
+
+
+    CHEMIN_FICHIER_TRAINING = "twitter_training.parquet"
+    CHEMIN_FICHIER_VALIDATION = "twitter_validation.parquet"
     df_train = get_parquet_from_path(CHEMIN_FICHIER_TRAINING)
     df_validation = get_parquet_from_path(CHEMIN_FICHIER_VALIDATION)
     # Define column names
@@ -30,4 +24,5 @@ def load_data():
     df_validation['sentiment'] = df_validation['sentiment'].str.strip().str.lower()
     df_validation = df_validation[df_validation['sentiment'].isin(['negative', 'neutral', 'positive'])]
     df_validation['label'] = df_validation['sentiment'].map({'negative': 0, 'neutral': 1, 'positive': 2}).astype(int)
+    return df_train, df_validation
 
