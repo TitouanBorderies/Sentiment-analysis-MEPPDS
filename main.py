@@ -7,7 +7,7 @@ load_dotenv()
 client = initialize_client()
 dernier_message = get_last_message(client)
 
-path_model = os.environ.get("MODEL_PATH", "")
+path_model = os.environ.get("MODEL_PATH", "classifier_weights.bin")
 model = CustomSentimentClassifier.from_pretrained(path_model)
 
 print("Dernier message de @lemonde.fr :")

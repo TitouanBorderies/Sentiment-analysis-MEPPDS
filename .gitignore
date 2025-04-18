@@ -3,3 +3,6 @@ env
 notebook
 models
 __pycache__
+mlruns/
+models/
+.gitignore
