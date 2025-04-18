@@ -1,10 +1,7 @@
-import os
 from utils import get_parquet_from_path
 
 
 def load_data():
-
-
     CHEMIN_FICHIER_TRAINING = "twitter_training.parquet"
     CHEMIN_FICHIER_VALIDATION = "twitter_validation.parquet"
     df_train = get_parquet_from_path(CHEMIN_FICHIER_TRAINING)
