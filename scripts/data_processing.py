@@ -1,4 +1,4 @@
-from utils import get_parquet_from_path
+from utils.utils import get_parquet_from_path
 
 
 def load_data():

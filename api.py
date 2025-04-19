@@ -2,8 +2,8 @@ from fastapi import FastAPI
 from fastapi.openapi.docs import get_swagger_ui_html
 from joblib import load
 from dotenv import load_dotenv
-from bluesky import initialize_client, get_last_message
-from architectures import CustomSentimentClassifier
+from scripts.bluesky import initialize_client, get_last_message
+from classes.architectures import CustomSentimentClassifier
 import os
 
 # Charger les variables d'environnement
@@ -46,9 +46,7 @@ async def custom_swagger_ui_html():
 async def welcome():
     return {
         "message": "Bienvenue sur l'API de classification de sentiment 🎉",
-        "model": "Custom BERT Sentiment Classifier",
-        "version": "1.0"
-    }
+        "model": "Custom BERT Sentiment Classifier"    }
 
 @app.get("/predict_last_message", tags=["Predict"])
 async def predict_last():
