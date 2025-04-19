@@ -1,9 +1,9 @@
 import os
 from transformers import TrainingArguments
-from trainer import CustomTrainer
-from architectures import CustomSentimentClassifier, tokenize_function
-from data_processing import load_data
-from TweetDataset import TweetDataset
+from classes.trainer import CustomTrainer
+from classes.architectures import CustomSentimentClassifier, tokenize_function
+from scripts.data_processing import load_data
+from classes.TweetDataset import TweetDataset
 import mlflow
 from dotenv import load_dotenv
 
