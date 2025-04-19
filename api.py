@@ -4,13 +4,13 @@ from joblib import load
 from dotenv import load_dotenv
 from bluesky import initialize_client, get_last_message
 from architectures import CustomSentimentClassifier
+import os
 
 # Charger les variables d'environnement
 load_dotenv()
 
 # Initialiser le modèle
-# Attention le path est hardcodé 
-MODEL_PATH = "/home/onyxia/work/Sentiment-analysis-MEPPDS/prod_model"
+MODEL_PATH = os.environ.get("MODEL_PATH", "")
 model = CustomSentimentClassifier.from_pretrained(MODEL_PATH)
 
 # Initialiser le client Bluesky
@@ -38,7 +38,7 @@ app = FastAPI(
 @app.get("/docs", include_in_schema=False)
 async def custom_swagger_ui_html():
     return get_swagger_ui_html(
-        openapi_url="/proxy/8000/openapi.json",  # 👈 AJUSTÉ POUR ONYXIA
+        openapi_url="/openapi.json",  # 👈 AJUSTÉ POUR ONYXIA
         title="Custom API docs"
     )
 
