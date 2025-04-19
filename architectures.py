@@ -53,7 +53,7 @@ class CustomSentimentClassifier(nn.Module):
         outputs = self(**inputs)
         logits = outputs["logits"]
         predicted_class = torch.argmax(logits, dim=1).item()
-        return_dict = {0: "négatif", 1: "neutre", 2: "Positif"}
+        return_dict = {0: "négatif", 1: "neutre", 2: "positif"}
         return return_dict[predicted_class]
 
     @classmethod
