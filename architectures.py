@@ -18,11 +18,14 @@ def tokenize_function(examples):
 class CustomSentimentClassifier(nn.Module):
     def __init__(self, hidden_size=312, num_labels=3):
         super(CustomSentimentClassifier, self).__init__()
+        self.n_neurons = 50
         self.tinybert = AutoModel.from_pretrained(
             "huawei-noah/TinyBERT_General_4L_312D"
         )
         self.classifier = nn.Sequential(
-            nn.Linear(hidden_size, 2), nn.ReLU(), nn.Linear(2, num_labels)
+            nn.Linear(hidden_size, self.n_neurons), nn.ReLU(),
+            nn.Linear(self.n_neurons, self.n_neurons), nn.ReLU(), 
+            nn.Linear(self.n_neurons, num_labels)
         )
 
     def forward(self, input_ids, token_type_ids=None, attention_mask=None, labels=None):

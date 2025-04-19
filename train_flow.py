@@ -13,8 +13,8 @@ load_dotenv()
 df_train, df_validation = load_data()
 
 # Pour le débogage / test rapide
-df_train = df_train.head(10).copy()
-df_validation = df_validation.head(10).copy()
+# df_train = df_train.head(100).copy()
+# df_validation = df_validation.head(100).copy()
 
 # Encodage des données
 train_encodings = tokenize_function(df_train)
@@ -26,9 +26,9 @@ val_dataset = TweetDataset(val_encodings, df_validation["label"].tolist())
 # Arguments d'entraînement
 training_args = TrainingArguments(
     output_dir="./models",
-    num_train_epochs=1,
-    per_device_train_batch_size=3,
-    per_device_eval_batch_size=3,
+    num_train_epochs=5,
+    per_device_train_batch_size=20,
+    per_device_eval_batch_size=20,
     logging_dir="./logs",
     logging_strategy="steps",
     logging_steps=1,
