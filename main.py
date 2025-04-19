@@ -1,6 +1,6 @@
 import os
-from bluesky import initialize_client, get_last_message
-from architectures import CustomSentimentClassifier
+from scripts.bluesky import initialize_client, get_last_message
+from classes.architectures import CustomSentimentClassifier
 from dotenv import load_dotenv
 
 load_dotenv()
