@@ -13,8 +13,10 @@ load_dotenv()
 df_train, df_validation = load_data()
 
 # Pour le débogage / test rapide
-df_train = df_train.head(5000).copy()
-df_validation = df_validation.head(5000).copy()
+# df_train = df_train.head(5000).copy()
+# df_validation = df_validation.head(5000).copy()
+df_train = df_train.head(100).copy()
+df_validation = df_validation.head(100).copy()
 
 # Encodage des données
 train_encodings = tokenize_function(df_train)
