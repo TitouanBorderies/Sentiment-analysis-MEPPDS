@@ -1,0 +1,22 @@
+#| filename: "deployment/deployment.yaml"
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: sentiment-deployment
+  labels:
+    app: sentiment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: sentiment
+  template:
+    metadata:
+      labels:
+        app: sentiment
+    spec:
+      containers:
+      - name: sentiment
+        image: theogabo/application:latest
+        ports:
+        - containerPort: 8000
