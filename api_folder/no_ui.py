@@ -2,7 +2,7 @@ from fastapi import FastAPI
 from pydantic import BaseModel
 from joblib import load
 from dotenv import load_dotenv
-from scripts.bluesky import initialize_client, get_last_message
+from scripts.bluesky import initialize_client, get_message
 from classes.architectures import CustomSentimentClassifier
 import subprocess
 import os
@@ -19,7 +19,7 @@ model = CustomSentimentClassifier.from_pretrained(MODEL_PATH)
 
 # Initialiser le client Bluesky
 client = initialize_client()
-dernier_message = get_last_message(client)
+dernier_message = get_message(client)
 
 # Création de l'app FastAPI sans documentation publique
 app = FastAPI(
@@ -42,7 +42,7 @@ app.add_middleware(
 @app.get("/")
 async def welcome():
     return {
-        "message": "Bienvenue sur l'API de classification de sentiment 🎉",
+        "message": "Bienvenue sur l'API de classification de sentiment 🎉, j'adore les voituresHAHAHAHA",
         "model": "Custom BERT Sentiment Classifier"
     }
 
@@ -89,10 +89,12 @@ async def submit_annotation(data: Annotation):
 async def retrain_model():
     try:
         result = subprocess.run(
-            ["python", "scripts.retrain.py"],
+            ["python", "scripts/retrain.py"],
             capture_output=True,
             text=True,
-            check=True
+            check=True,
+            env={**os.environ, "PYTHONPATH": os.getcwd()}  # Ajoute la racine du projet au PYTHONPATH
+            
         )
         return {
             "message": "Réentraînement terminé ✅",

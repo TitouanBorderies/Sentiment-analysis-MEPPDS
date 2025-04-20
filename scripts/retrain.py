@@ -15,7 +15,7 @@ from classes.TweetDataset import TweetDataset
 load_dotenv()
 
 MODEL_PATH = os.environ.get("MODEL_PATH", "")
-ANNOTATION_PATH = "annotations/annotations.jsonl"
+ANNOTATION_PATH = "annotations/annotations_clean.jsonl"
 
 def load_annotations(path=ANNOTATION_PATH):
     if not os.path.exists(path):

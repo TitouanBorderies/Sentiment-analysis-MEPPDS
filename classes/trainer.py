@@ -14,6 +14,3 @@ class CustomTrainer(Trainer):
         torch.save(
             classifier_state_dict, os.path.join(output_dir, "classifier_weights.bin")
         )
-
-        # Sauvegarder le modèle TinyBERT (optionnel)
-        self.model.tinybert.save_pretrained(output_dir)

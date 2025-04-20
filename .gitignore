@@ -8,3 +8,5 @@ models/
 scripts/__pycache__
 classes/__pycache__
 .env
+models_retrain
+annotations
