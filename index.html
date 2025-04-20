@@ -79,7 +79,7 @@
   </div>
 
   <script>
-    const API_URL = "https://user-titouanborderies-332090-0.user.lab.sspcloud.fr/proxy/8000/";  // Change ici si tu déploies ailleurs
+    const API_URL = "https://sentiment-theo.lab.sspcloud.fr";  // Change ici si tu déploies ailleurs
 
     async function getSentiment() {
       const res = await fetch(`${API_URL}/predict_text?text=La situation est tendue.`);
