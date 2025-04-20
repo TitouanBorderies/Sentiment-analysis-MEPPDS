@@ -2,32 +2,82 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Sentiment Analysis App</title>
-  <link rel="stylesheet" href="style.css" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Analyse de Sentiment</title>
+  <link rel="stylesheet" href="site/style.css" />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    .button {
+      background-color: #4A90E2;
+      border: none;
+      color: white;
+      padding: 10px 20px;
+      margin: 5px;
+      text-align: center;
+      font-size: 16px;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+
+    .button:hover {
+      background-color: #357ABD;
+    }
+
+    .titre-section {
+      margin-top: 30px;
+      padding: 15px;
+      background-color: #f1f5f9;
+      border-radius: 10px;
+    }
+
+    .titre-section h2 {
+      font-size: 20px;
+      margin-bottom: 10px;
+    }
+
+    .titre {
+      margin-bottom: 5px;
+      font-weight: 500;
+    }
+  </style>
 </head>
 <body>
   <div class="container">
     <div class="card">
-      <h1>Analyse de Sentiment 📊</h1>
-      <p>Interagissez avec notre modèle BERT directement depuis cette interface.</p>
+      <h1>Bienvenue 👋</h1>
+      <p>Ce site permet d’interagir avec notre API de sentiment analysis et de voir les derniers titres du journal Le Monde.</p>
 
-      <div class="actions">
-        <button onclick="window.location.href='predict.html'">🧠 Prédire un sentiment</button>
-        <button onclick="window.location.href='annotate.html'">✍️ Annoter un texte</button>
-        <button onclick="retrainModel()">🔁 Réentraîner le modèle</button>
+      <button class="button" onclick="getSentiment()">Tester le modèle</button>
+      <button class="button" onclick="getTitles()">Charger les titres Le Monde</button>
+
+      <div id="resultat"></div>
+
+      <div class="titre-section">
+        <h2>📰 Derniers titres Le Monde</h2>
+        <div id="titres"></div>
       </div>
-
-      <div id="message" class="message"></div>
     </div>
   </div>
 
   <script>
-    async function retrainModel() {
-      const res = await fetch("http://localhost:8000/retrain_model", { method: "POST" });
+    async function getSentiment() {
+      const res = await fetch("http://localhost:8000/predict_text?text=La situation est tendue.");
       const data = await res.json();
-      document.getElementById("message").textContent = data.message || "Réponse reçue.";
+      document.getElementById("resultat").innerText = `Texte : ${data.text} \nSentiment : ${data.sentiment}`;
+    }
+
+    async function getTitles() {
+      const res = await fetch("http://localhost:8000/get_last_titles");
+      const data = await res.json();
+      const titresContainer = document.getElementById("titres");
+      titresContainer.innerHTML = "";
+      data.titres.forEach((titre, index) => {
+        const p = document.createElement("p");
+        p.classList.add("titre");
+        p.innerText = `${index + 1}. ${titre}`;
+        titresContainer.appendChild(p);
+      });
     }
   </script>
 </body>

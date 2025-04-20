@@ -94,7 +94,7 @@ async def retrain_model():
             text=True,
             check=True,
             env={**os.environ, "PYTHONPATH": os.getcwd()}  # Ajoute la racine du projet au PYTHONPATH
-            
+
         )
         return {
             "message": "Réentraînement terminé ✅",
@@ -106,3 +106,15 @@ async def retrain_model():
             "stdout": e.stdout,
             "stderr": e.stderr
         }
+
+@app.get("/get_last_titles")
+async def get_last_titles():
+    client = initialize_client()
+    titres = []
+    for i in range(10):
+        try:
+            titre = get_message(client, position=i)
+            titres.append(titre)
+        except Exception:
+            break
+    return {"titres": titres}
