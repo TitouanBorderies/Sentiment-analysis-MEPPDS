@@ -17,7 +17,7 @@ def get_message(client, position=0):
     did = profile["did"]
 
     # Étape 3 : Récupérer les posts du compte (feed)
-    feed = client.app.bsky.feed.get_author_feed({"actor": did, "limit": position+1})
+    feed = client.app.bsky.feed.get_author_feed({"actor": did, "limit": position + 1})
 
     # Étape 4 : Afficher le dernier post
     dernier_post = feed["feed"][position]["post"]

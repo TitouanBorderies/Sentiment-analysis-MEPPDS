@@ -17,6 +17,7 @@ load_dotenv()
 MODEL_PATH = os.environ.get("MODEL_PATH", "")
 ANNOTATION_PATH = "annotations/annotations_clean.jsonl"
 
+
 def load_annotations(path=ANNOTATION_PATH):
     if not os.path.exists(path):
         print("Aucune annotation utilisateur trouvée.")
@@ -24,6 +25,7 @@ def load_annotations(path=ANNOTATION_PATH):
     with open(path, "r", encoding="utf-8") as f:
         lines = [json.loads(line) for line in f]
     return pd.DataFrame(lines)
+
 
 # Chargement des données
 df_train, df_validation = load_data()
@@ -34,7 +36,9 @@ if not df_user_annotations.empty:
 
     # Tokenisation des annotations
     annotations_encodings = tokenize_function(df_user_annotations)
-    annotations_dataset = TweetDataset(annotations_encodings, df_user_annotations["label"].tolist())
+    annotations_dataset = TweetDataset(
+        annotations_encodings, df_user_annotations["label"].tolist()
+    )
 
     # Charger modèle existant
     model = CustomSentimentClassifier.from_pretrained(MODEL_PATH)
@@ -54,7 +58,7 @@ if not df_user_annotations.empty:
         save_steps=10,
         save_total_limit=1,
         disable_tqdm=False,
-        report_to="none"
+        report_to="none",
     )
 
     # MLflow setup

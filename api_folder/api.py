@@ -37,7 +37,7 @@ app = FastAPI(
     description=description_html,
     version="1.0",
     docs_url=None,
-    openapi_url="/openapi.json"  # ✅ Ceci réactive /openapi.json
+    openapi_url="/openapi.json",  # ✅ Ceci réactive /openapi.json
 )
 
 app.add_middleware(
@@ -48,44 +48,44 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+
 @app.get("/docs", include_in_schema=False)
 async def custom_swagger_ui_html(request: Request):
     root_url = str(request.base_url)
     return get_swagger_ui_html(
-        openapi_url=f"{root_url}openapi.json",
-        title="Custom API docs"
+        openapi_url=f"{root_url}openapi.json", title="Custom API docs"
     )
+
 
 @app.get("/", tags=["Welcome"])
 async def welcome():
     return {
         "message": "Bienvenue sur l'API de classification de sentiment 🎉",
-        "model": "Custom BERT Sentiment Classifier"
+        "model": "Custom BERT Sentiment Classifier",
     }
+
 
 @app.get("/predict_last_message", tags=["Predict"])
 async def predict_last():
     sentiment = model.infer_sentiment(dernier_message)
-    return {
-        "message": dernier_message,
-        "sentiment": sentiment
-    }
+    return {"message": dernier_message, "sentiment": sentiment}
+
 
 @app.get("/predict_text", tags=["Predict"])
 async def predict_text(text: str = "La situation est tendue."):
     sentiment = model.infer_sentiment(text)
-    return {
-        "text": text,
-        "sentiment": sentiment
-    }
+    return {"text": text, "sentiment": sentiment}
+
 
 # ======= NOUVEAU ENDPOINT: soumission d'annotations utilisateur =======
 
 ANNOTATION_PATH = "annotations.jsonl"
 
+
 class Annotation(BaseModel):
     text: str
     label: int  # 0 ou 1, selon ton format de labels
+
 
 @app.post("/submit_annotation", tags=["Feedback"])
 async def submit_annotation(data: Annotation):
@@ -94,24 +94,20 @@ async def submit_annotation(data: Annotation):
         f.write(json.dumps(data.dict(), ensure_ascii=False) + "\n")
     return {"message": "Annotation enregistrée ✅"}
 
+
 # ======= NOUVEAU ENDPOINT: déclenchement du réentraînement =======
+
 
 @app.post("/retrain_model", tags=["Training"])
 async def retrain_model():
     try:
         result = subprocess.run(
-            ["python", "retrain.py"],
-            capture_output=True,
-            text=True,
-            check=True
+            ["python", "retrain.py"], capture_output=True, text=True, check=True
         )
-        return {
-            "message": "Réentraînement terminé ✅",
-            "stdout": result.stdout
-        }
+        return {"message": "Réentraînement terminé ✅", "stdout": result.stdout}
     except subprocess.CalledProcessError as e:
         return {
             "message": "Erreur pendant le réentraînement ❌",
             "stdout": e.stdout,
-            "stderr": e.stderr
+            "stderr": e.stderr,
         }

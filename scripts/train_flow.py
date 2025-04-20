@@ -15,8 +15,8 @@ df_train, df_validation = load_data()
 # Pour le débogage / test rapide
 # df_train = df_train.head(5000).copy()
 # df_validation = df_validation.head(5000).copy()
-df_train = df_train.head(100).copy()
-df_validation = df_validation.head(100).copy()
+df_train = df_train.head(10).copy()
+df_validation = df_validation.head(10).copy()
 
 # Encodage des données
 train_encodings = tokenize_function(df_train)
@@ -37,7 +37,7 @@ training_args = TrainingArguments(
     disable_tqdm=False,
     save_steps=10,
     save_total_limit=2,
-    report_to="none"  # On désactive le reporting auto
+    report_to="none",  # On désactive le reporting auto
 )
 
 model = CustomSentimentClassifier()

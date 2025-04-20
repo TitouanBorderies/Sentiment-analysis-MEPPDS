@@ -28,7 +28,7 @@ app = FastAPI(
     version="1.0",
     docs_url=None,
     redoc_url=None,
-    openapi_url=None
+    openapi_url=None,
 )
 
 app.add_middleware(
@@ -39,36 +39,36 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+
 @app.get("/")
 async def welcome():
     return {
         "message": "Bienvenue sur l'API de classification de sentiment 🎉, j'adore les voituresHAHAHAHA",
-        "model": "Custom BERT Sentiment Classifier"
+        "model": "Custom BERT Sentiment Classifier",
     }
+
 
 @app.get("/predict_last_message")
 async def predict_last():
     sentiment = model.infer_sentiment(dernier_message)
-    return {
-        "message": dernier_message,
-        "sentiment": sentiment
-    }
+    return {"message": dernier_message, "sentiment": sentiment}
+
 
 @app.get("/predict_text")
 async def predict_text(text: str = "La situation est tendue."):
     sentiment = model.infer_sentiment(text)
-    return {
-        "text": text,
-        "sentiment": sentiment
-    }
+    return {"text": text, "sentiment": sentiment}
+
 
 # ======= Soumission d'annotations utilisateur =======
 
 ANNOTATION_PATH = "annotations/annotations.jsonl"  # Assurez-vous de définir un dossier
 
+
 class Annotation(BaseModel):
     text: str
     label: int  # 0 ou 1
+
 
 @app.post("/submit_annotation")
 async def submit_annotation(data: Annotation):
@@ -83,7 +83,9 @@ async def submit_annotation(data: Annotation):
 
     return {"message": "Annotation enregistrée et validée dynamiquement ✅"}
 
+
 # ======= Déclenchement du réentraînement =======
+
 
 @app.post("/retrain_model")
 async def retrain_model():
@@ -93,19 +95,19 @@ async def retrain_model():
             capture_output=True,
             text=True,
             check=True,
-            env={**os.environ, "PYTHONPATH": os.getcwd()}  # Ajoute la racine du projet au PYTHONPATH
-
+            env={
+                **os.environ,
+                "PYTHONPATH": os.getcwd(),
+            },  # Ajoute la racine du projet au PYTHONPATH
         )
-        return {
-            "message": "Réentraînement terminé ✅",
-            "stdout": result.stdout
-        }
+        return {"message": "Réentraînement terminé ✅", "stdout": result.stdout}
     except subprocess.CalledProcessError as e:
         return {
             "message": "Erreur pendant le réentraînement ❌",
             "stdout": e.stdout,
-            "stderr": e.stderr
+            "stderr": e.stderr,
         }
+
 
 @app.get("/get_last_titles")
 async def get_last_titles():
