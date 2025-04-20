@@ -8,7 +8,7 @@ import subprocess
 import os
 import json
 from fastapi.middleware.cors import CORSMiddleware
-from filter_annotations import filter_and_save_clean_annotations
+from utils.filter_annotations import filter_and_save_clean_annotations
 
 # Charger les variables d'environnement
 load_dotenv()
