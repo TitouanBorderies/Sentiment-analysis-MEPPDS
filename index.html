@@ -53,6 +53,11 @@
       border-radius: 10px;
       box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
     }
+
+    #resultat, #titres, #retrain-result, #annotation-result {
+      margin-top: 20px;
+      font-size: 16px;
+    }
   </style>
 </head>
 <body>
@@ -66,38 +71,73 @@
         <img src="https://storage.googleapis.com/media-newsinitiative/images/Le_Monde_Logo.original.png" alt="BERT illustration">
       </div>
 
-      <button class="button" onclick="getSentiment()">Tester le modèle</button>
-      <button class="button" onclick="getTitles()">Charger les titres Le Monde</button>
+      <button class="button" onclick="getSentiment()">Tester le modèle sur un texte</button>
+      <button class="button" onclick="getLastMessageSentiment()">Tester le modèle sur le dernier message Le Monde</button>
+      <button class="button" onclick="getTitlesWithSentiment()">Charger les titres Le Monde avec sentiment</button>
+      <button class="button" onclick="submitAnnotation()">Soumettre une annotation</button>
+      <button class="button" onclick="retrainModel()">Réentraîner le modèle</button>
 
       <div id="resultat"></div>
-
-      <div class="titre-section">
-        <h2>📰 Derniers titres Le Monde</h2>
-        <div id="titres"></div>
-      </div>
+      <div id="titres"></div>
+      <div id="retrain-result"></div>
+      <div id="annotation-result"></div>
     </div>
   </div>
 
   <script>
-    const API_URL = "https://sentiment-theo.lab.sspcloud.fr";  // Change ici si tu déploies ailleurs
+    const API_URL = "http://127.0.0.1:8000";  // Changez l'URL si nécessaire
 
     async function getSentiment() {
-      const res = await fetch(`${API_URL}/predict_text?text=La situation est tendue.`);
+      const text = "La situation est tendue.";
+      const res = await fetch(`${API_URL}/predict_text?text=${encodeURIComponent(text)}`);
       const data = await res.json();
       document.getElementById("resultat").innerText = `Texte : ${data.text} \nSentiment : ${data.sentiment}`;
     }
 
-    async function getTitles() {
+    async function getLastMessageSentiment() {
+      const res = await fetch(`${API_URL}/predict_last_message`);
+      const data = await res.json();
+      document.getElementById("resultat").innerText = `Message : ${data.message} \nSentiment : ${data.sentiment}`;
+    }
+
+    async function getTitlesWithSentiment() {
       const res = await fetch(`${API_URL}/get_last_titles`);
       const data = await res.json();
       const titresContainer = document.getElementById("titres");
       titresContainer.innerHTML = "";
-      data.titres.forEach((titre, index) => {
+      for (let i = 0; i < data.titres.length; i++) {
+        const titre = data.titres[i];
+        const sentimentRes = await fetch(`${API_URL}/predict_text?text=${encodeURIComponent(titre)}`);
+        const sentimentData = await sentimentRes.json();
         const p = document.createElement("p");
         p.classList.add("titre");
-        p.innerText = `${index + 1}. ${titre}`;
+        p.innerHTML = `${i + 1}. <strong>${titre}</strong> <span>Sentiment : ${sentimentData.sentiment}</span>`;
         titresContainer.appendChild(p);
+      }
+    }
+
+    async function submitAnnotation() {
+      const annotation = {
+        text: "Ce texte est un exemple pour annotation.",
+        label: 1  // Par exemple, 1 pour un sentiment positif
+      };
+      const res = await fetch(`${API_URL}/submit_annotation`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify(annotation)
       });
+      const data = await res.json();
+      document.getElementById("annotation-result").innerText = data.message;
+    }
+
+    async function retrainModel() {
+      const res = await fetch(`${API_URL}/retrain_model`, {
+        method: "POST"
+      });
+      const data = await res.json();
+      document.getElementById("retrain-result").innerText = data.message;
     }
   </script>
 </body>
