@@ -8,6 +8,7 @@ import subprocess
 import os
 import json
 from fastapi.middleware.cors import CORSMiddleware
+from filter_annotations import filter_and_save_clean_annotations
 
 # Charger les variables d'environnement
 load_dotenv()
@@ -71,13 +72,16 @@ class Annotation(BaseModel):
 
 @app.post("/submit_annotation")
 async def submit_annotation(data: Annotation):
-    # Crée le dossier si nécessaire
     os.makedirs(os.path.dirname(ANNOTATION_PATH), exist_ok=True)
 
-    # Ajoute l'annotation au fichier JSONL
+    # Ajouter la nouvelle annotation
     with open(ANNOTATION_PATH, "a", encoding="utf-8") as f:
         f.write(json.dumps(data.dict(), ensure_ascii=False) + "\n")
-    return {"message": "Annotation enregistrée ✅"}
+
+    # Mettre à jour dynamiquement les annotations filtrées
+    filter_and_save_clean_annotations()
+
+    return {"message": "Annotation enregistrée et validée dynamiquement ✅"}
 
 # ======= Déclenchement du réentraînement =======
 
