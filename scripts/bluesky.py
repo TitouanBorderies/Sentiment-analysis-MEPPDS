@@ -10,16 +10,16 @@ def initialize_client():
     return client
 
 
-def get_last_message(client):
+def get_message(client, position=0):
     """returns last message from lemonde.fr using bluesky's api"""
     handle = "lemonde.fr"
     profile = client.app.bsky.actor.get_profile({"actor": handle})
     did = profile["did"]
 
     # Étape 3 : Récupérer les posts du compte (feed)
-    feed = client.app.bsky.feed.get_author_feed({"actor": did, "limit": 1})
+    feed = client.app.bsky.feed.get_author_feed({"actor": did, "limit": position+1})
 
     # Étape 4 : Afficher le dernier post
-    dernier_post = feed["feed"][0]["post"]
+    dernier_post = feed["feed"][position]["post"]
     dernier_message = dernier_post["record"]["text"]
     return dernier_message
