@@ -10,3 +10,4 @@ transformers>=4.39.0
 accelerate>=0.26.0
 pybind11>=2.12
 numpy<2
+accelerate>=0.26.0

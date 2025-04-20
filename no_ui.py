@@ -1,5 +1,4 @@
-from fastapi import FastAPI, Request
-from fastapi.openapi.docs import get_swagger_ui_html
+from fastapi import FastAPI
 from pydantic import BaseModel
 from joblib import load
 from dotenv import load_dotenv
@@ -9,6 +8,7 @@ import subprocess
 import os
 import json
 from fastapi.middleware.cors import CORSMiddleware
+from filter_annotations import filter_and_save_clean_annotations
 
 # Charger les variables d'environnement
 load_dotenv()
@@ -21,49 +21,32 @@ model = CustomSentimentClassifier.from_pretrained(MODEL_PATH)
 client = initialize_client()
 dernier_message = get_last_message(client)
 
-# Création de l'app FastAPI
-description_html = """
-API de détection de sentiment à partir des derniers messages de @lemonde.fr via Bluesky 🌐
-
-<br><br>
-<div style="display: flex; gap: 30px; align-items: center;">
-    <img src="https://sesameworkshop.org/wp-content/uploads/2023/03/presskit_ss_bio_bert.png" width="180">
-    <img src="https://storage.googleapis.com/media-newsinitiative/images/Le_Monde_Logo.original.png" width="140">
-</div>
-"""
-
+# Création de l'app FastAPI sans documentation publique
 app = FastAPI(
     title="Analyse de sentiment avec BERT",
-    description=description_html,
+    description="API REST sans UI pour l’analyse de sentiments",
     version="1.0",
     docs_url=None,
-    openapi_url="/openapi.json"  # ✅ Ceci réactive /openapi.json
+    redoc_url=None,
+    openapi_url=None
 )
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # 🔓 Pour tests. Remplace par ton frontend en prod.
+    allow_origins=["*"],  # À restreindre en production
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-@app.get("/docs", include_in_schema=False)
-async def custom_swagger_ui_html(request: Request):
-    root_url = str(request.base_url)
-    return get_swagger_ui_html(
-        openapi_url=f"{root_url}openapi.json",
-        title="Custom API docs"
-    )
-
-@app.get("/", tags=["Welcome"])
+@app.get("/")
 async def welcome():
     return {
         "message": "Bienvenue sur l'API de classification de sentiment 🎉",
         "model": "Custom BERT Sentiment Classifier"
     }
 
-@app.get("/predict_last_message", tags=["Predict"])
+@app.get("/predict_last_message")
 async def predict_last():
     sentiment = model.infer_sentiment(dernier_message)
     return {
@@ -71,7 +54,7 @@ async def predict_last():
         "sentiment": sentiment
     }
 
-@app.get("/predict_text", tags=["Predict"])
+@app.get("/predict_text")
 async def predict_text(text: str = "La situation est tendue."):
     sentiment = model.infer_sentiment(text)
     return {
@@ -79,24 +62,30 @@ async def predict_text(text: str = "La situation est tendue."):
         "sentiment": sentiment
     }
 
-# ======= NOUVEAU ENDPOINT: soumission d'annotations utilisateur =======
+# ======= Soumission d'annotations utilisateur =======
 
-ANNOTATION_PATH = "annotations.jsonl"
+ANNOTATION_PATH = "annotations/annotations.jsonl"  # Assurez-vous de définir un dossier
 
 class Annotation(BaseModel):
     text: str
-    label: int  # 0 ou 1, selon ton format de labels
+    label: int  # 0 ou 1
 
-@app.post("/submit_annotation", tags=["Feedback"])
+@app.post("/submit_annotation")
 async def submit_annotation(data: Annotation):
     os.makedirs(os.path.dirname(ANNOTATION_PATH), exist_ok=True)
+
+    # Ajouter la nouvelle annotation
     with open(ANNOTATION_PATH, "a", encoding="utf-8") as f:
         f.write(json.dumps(data.dict(), ensure_ascii=False) + "\n")
-    return {"message": "Annotation enregistrée ✅"}
 
-# ======= NOUVEAU ENDPOINT: déclenchement du réentraînement =======
+    # Mettre à jour dynamiquement les annotations filtrées
+    filter_and_save_clean_annotations()
 
-@app.post("/retrain_model", tags=["Training"])
+    return {"message": "Annotation enregistrée et validée dynamiquement ✅"}
+
+# ======= Déclenchement du réentraînement =======
+
+@app.post("/retrain_model")
 async def retrain_model():
     try:
         result = subprocess.run(
