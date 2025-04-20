@@ -1,0 +1,24 @@
+name: Load Secrets into Environment
+
+on: [push, pull_request]
+
+env:
+  DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+  DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
+  BUCKET: ${{ vars.BUCKET }}
+  ENDPOINT: ${{ vars.ENDPOINT }}
+  PATH_TO_DATA: ${{ vars.PATH_TO_DATA }}
+  BLUESKY_IDENT: ${{ vars.BLUESKY_IDENT }}
+  BLUESKY_PASS: ${{ vars.BLUESKY_PASS }}
+  MODEL_PATH: ${{ vars.MODEL_PATH }}
+
+jobs:
+  set-env:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Print environment (for debug only, optional)
+        run: |
+          echo "Environment ready. Secrets are loaded."
