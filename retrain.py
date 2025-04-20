@@ -12,6 +12,8 @@ from classes.TweetDataset import TweetDataset
 
 load_dotenv()
 
+MODEL_PATH = os.environ.get("MODEL_PATH", "")
+
 ANNOTATION_PATH = "annotations/annotations.jsonl"
 
 def load_annotations(path=ANNOTATION_PATH):
@@ -36,7 +38,7 @@ if not df_user_annotations.empty:
     annotations_dataset = TweetDataset(annotations_encodings, df_user_annotations["label"].tolist())
 
     # Initialiser modèle pré-existant
-    model = CustomSentimentClassifier.from_pretrained("prod_model")  # Charger le modèle existant
+    model = CustomSentimentClassifier.from_pretrained(MODEL_PATH)  # Charger le modèle existant
 
     # Arguments d'entraînement (plus léger que le training initial)
     training_args = TrainingArguments(
