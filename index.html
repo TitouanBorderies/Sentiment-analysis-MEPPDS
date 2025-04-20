@@ -3,16 +3,81 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Bienvenue</title>
+  <title>Analyse de Sentiment</title>
   <link rel="stylesheet" href="site/style.css" />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
 </head>
 <body>
   <div class="container">
     <div class="card">
-      <h1>Bienvenue 👋</h1>
-      <p>Merci de visiter notre projet qui consiste à faire du sentiment analysis. Ce site est en cours de construction, mais restez dans les parages&nbsp;!</p>
+      <h1>Bienvenue sur l'API d'Analyse de Sentiment 👋</h1>
+      <p>Interagissez avec notre modèle de sentiment BERT en soumettant des textes et des annotations.</p>
+
+      <div>
+        <h2>1. Prédire le sentiment d'un texte</h2>
+        <input type="text" id="inputText" placeholder="Entrez un texte ici" />
+        <button onclick="predictSentiment()">Analyser le sentiment</button>
+        <p id="predictionResult"></p>
+      </div>
+
+      <div>
+        <h2>2. Soumettre une annotation</h2>
+        <textarea id="annotationText" placeholder="Texte annoté..." rows="4" cols="50"></textarea><br/>
+        <input type="number" id="annotationLabel" placeholder="Label (0 ou 1)" /><br/>
+        <button onclick="submitAnnotation()">Soumettre Annotation</button>
+        <p id="annotationResult"></p>
+      </div>
+
+      <div>
+        <h2>3. Déclencher un réentraînement du modèle</h2>
+        <button onclick="retrainModel()">Réentraîner le modèle</button>
+        <p id="retrainResult"></p>
+      </div>
     </div>
   </div>
+
+  <script>
+    // URL de l'API FastAPI
+    const apiUrl = "http://127.0.0.1:8000";
+
+    // Fonction pour prédire le sentiment
+    async function predictSentiment() {
+      const text = document.getElementById('inputText').value;
+      const response = await fetch(`${apiUrl}/predict_text?text=${encodeURIComponent(text)}`);
+      const data = await response.json();
+      document.getElementById('predictionResult').innerHTML = `Sentiment: ${data.sentiment}`;
+    }
+
+    // Fonction pour soumettre une annotation
+    async function submitAnnotation() {
+      const text = document.getElementById('annotationText').value;
+      const label = document.getElementById('annotationLabel').value;
+
+      if (!text || label === '') {
+        alert('Veuillez entrer un texte et un label.');
+        return;
+      }
+
+      const annotation = { text: text, label: parseInt(label) };
+
+      const response = await fetch(`${apiUrl}/submit_annotation`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(annotation)
+      });
+
+      const result = await response.json();
+      document.getElementById('annotationResult').innerHTML = result.message;
+    }
+
+    // Fonction pour réentraîner le modèle
+    async function retrainModel() {
+      const response = await fetch(`${apiUrl}/retrain_model`, { method: 'POST' });
+      const result = await response.json();
+      document.getElementById('retrainResult').innerHTML = result.message;
+    }
+  </script>
 </body>
 </html>
