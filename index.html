@@ -62,8 +62,8 @@
       <p>Ce site permet d’interagir avec notre API de sentiment analysis et de voir les derniers titres du journal Le Monde.</p>
 
       <div class="images-section">
-        <img src="https://sesameworkshop.org/wp-content/uploads/2023/03/presskit_ss_bio_bert.png" alt="Logo Le Monde">
-        <img src="https://storage.googleapis.com/media-newsinitiative/images/Le_Monde_Logo.original.png" alt="BERT illustration">
+        <img src="https://upload.wikimedia.org/wikipedia/fr/3/3a/Le_Monde.svg" alt="Logo Le Monde">
+        <img src="https://miro.medium.com/v2/resize:fit:1000/format:webp/1*EK2ZMOUcLeHZk6OZ9fKryw.png" alt="BERT illustration">
       </div>
 
       <button class="button" onclick="getSentiment()">Tester le modèle</button>
@@ -79,14 +79,16 @@
   </div>
 
   <script>
+    const API_URL = "http://sentiment-theo.lab.sspcloud.fr";  // Change ici si tu déploies ailleurs
+
     async function getSentiment() {
-      const res = await fetch("http://localhost:8000/predict_text?text=La situation est tendue.");
+      const res = await fetch(`${API_URL}/predict_text?text=La situation est tendue.`);
       const data = await res.json();
       document.getElementById("resultat").innerText = `Texte : ${data.text} \nSentiment : ${data.sentiment}`;
     }
 
     async function getTitles() {
-      const res = await fetch("http://localhost:8000/get_last_titles");
+      const res = await fetch(`${API_URL}/get_last_titles`);
       const data = await res.json();
       const titresContainer = document.getElementById("titres");
       titresContainer.innerHTML = "";
