@@ -15,4 +15,4 @@ COPY . /app
 WORKDIR /app
 
 # Exécuter main.py
-CMD ["python3", "main.py"]
+CMD ["bash", "-c", "./api_folder/run.sh"]
