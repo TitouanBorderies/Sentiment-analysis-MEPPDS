@@ -19,35 +19,36 @@ ANNOTATION_PATH = "annotations/annotations_clean.jsonl"
 
 
 def load_annotations(path=ANNOTATION_PATH):
+    """Load user annotations from a .jsonl file."""
     if not os.path.exists(path):
-        print("Aucune annotation utilisateur trouvée.")
+        print("No user annotations found.")
         return pd.DataFrame(columns=["text", "label"])
     with open(path, "r", encoding="utf-8") as f:
         lines = [json.loads(line) for line in f]
     return pd.DataFrame(lines)
 
 
-# Chargement des données
+# Load training and validation data
 df_train, df_validation = load_data()
 df_user_annotations = load_annotations()
 
 if not df_user_annotations.empty:
-    print(f"Ajout de {len(df_user_annotations)} annotations utilisateur au modèle.")
+    print(f"Adding {len(df_user_annotations)} user annotations to training data.")
 
-    # Tokenisation des annotations
+    # Tokenize user annotations
     annotations_encodings = tokenize_function(df_user_annotations)
     annotations_dataset = TweetDataset(
         annotations_encodings, df_user_annotations["label"].tolist()
     )
 
-    # Charger modèle existant
+    # Load pre-trained model
     model = CustomSentimentClassifier.from_pretrained(MODEL_PATH)
 
-    # Préparer le timestamp pour nom unique
+    # Timestamped output directory
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
     retrained_output_dir = f"./models_retrain/model_{timestamp}"
 
-    # Config entraînement
+    # Training configuration
     training_args = TrainingArguments(
         output_dir=retrained_output_dir,
         num_train_epochs=2,
@@ -72,7 +73,7 @@ if not df_user_annotations.empty:
         eval_dataset=None,
     )
 
-    # Entraînement + log MLflow
+    # Train and log with MLflow
     with mlflow.start_run():
         mlflow.log_param("num_train_epochs", training_args.num_train_epochs)
         mlflow.log_param("train_batch_size", training_args.per_device_train_batch_size)
@@ -80,15 +81,13 @@ if not df_user_annotations.empty:
         mlflow.log_param("added_user_annotations", len(df_user_annotations))
 
         trainer.train()
-
-        # Sauvegarde du modèle réentraîné dans un nouveau dossier avec horodatage
         trainer.save_model(retrained_output_dir)
         mlflow.log_artifacts(retrained_output_dir, artifact_path="model")
 
-        # Écrase le dossier original avec le nouveau modèle
+        # Replace old model with the new one
         if os.path.exists(MODEL_PATH):
             shutil.rmtree(MODEL_PATH)
         shutil.copytree(retrained_output_dir, MODEL_PATH)
-        print(f"Modèle mis à jour sauvegardé dans : {MODEL_PATH}")
+        print(f"Updated model saved to: {MODEL_PATH}")
 else:
-    print("Aucune annotation utilisateur trouvée, aucune mise à jour nécessaire.")
+    print("No user annotations found, skipping retraining.")

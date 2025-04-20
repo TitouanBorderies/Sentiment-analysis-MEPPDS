@@ -1,8 +1,9 @@
-from atproto import Client
 import os
+from atproto import Client
 
 
 def initialize_client():
+    """Initialize and authenticate a Bluesky client using env credentials."""
     BLUESKY_IDENT = os.environ.get("BLUESKY_IDENT", "")
     BLUESKY_PASS = os.environ.get("BLUESKY_PASS", "")
     client = Client()
@@ -11,15 +12,10 @@ def initialize_client():
 
 
 def get_message(client, position=0):
-    """returns last message from lemonde.fr using bluesky's api"""
+    """Return a message from @lemonde.fr at a given feed position."""
     handle = "lemonde.fr"
     profile = client.app.bsky.actor.get_profile({"actor": handle})
     did = profile["did"]
-
-    # Étape 3 : Récupérer les posts du compte (feed)
     feed = client.app.bsky.feed.get_author_feed({"actor": did, "limit": position + 1})
-
-    # Étape 4 : Afficher le dernier post
     dernier_post = feed["feed"][position]["post"]
-    dernier_message = dernier_post["record"]["text"]
-    return dernier_message
+    return dernier_post["record"]["text"]
