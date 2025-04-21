@@ -68,23 +68,30 @@
       <!-- Champ de texte pour entrer une phrase -->
       <input type="text" id="texte-input" class="input-texte" placeholder="Entrez votre texte ici..." />
 
-      <div id="dynamic-content" style="max-height: 400px; overflow-y: auto; margin-top: 20px;"></div>
+      <!-- Champs pour l'annotation -->
+      <input type="text" id="annotation-text" class="input-texte" placeholder="Texte à annoter" />
+      <select id="annotation-label" class="input-texte">
+        <option value="0">Négatif</option>
+        <option value="1">Neutre</option>
+        <option value="2">Positif</option>
+      </select>
+
+      <div style="max-height: 400px; overflow-y: auto; margin-top: 20px;"></div>
+
+      <!-- Boutons -->
       <button class="button" onclick="getSentiment()">Tester le modèle sur un texte</button>
       <button class="button" onclick="getLastMessageSentiment()">Tester le modèle sur le dernier message Le Monde</button>
       <button class="button" onclick="getTitlesWithSentiment()">Charger les titres Le Monde avec sentiment</button>
       <button class="button" onclick="submitAnnotation()">Soumettre une annotation</button>
       <button class="button" onclick="retrainModel()">Réentraîner le modèle</button>
       <button class="button" onclick="checkApiStatus()">Vérifier la connexion à l'API</button>
-      </div>
 
-      <div id="dynamic-content" style="max-height: 400px; overflow-y: auto; margin-top: 20px;">
-        <div id="resultat"></div>
-        <div id="titres"></div>
-        <div id="retrain-result"></div>
-        <div id="annotation-result"></div>
-        <div id="welcome-message"></div>
-        <div id="api-status"></div>
-      </div>
+      <!-- Résultats -->
+      <div id="resultat"></div>
+      <div id="titres"></div>
+      <div id="retrain-result"></div>
+      <div id="annotation-result"></div>
+      <div id="api-status"></div>
     </div>
   </div>
 
@@ -99,16 +106,12 @@
       }
 
       try {
-        console.log("Texte envoyé à l'API :", inputText);
         const res = await fetch(`${API_URL}/predict_text?text=${encodeURIComponent(inputText)}`);
-        if (!res.ok) {
-          throw new Error(`Erreur API : ${res.status} ${res.statusText}`);
-        }
+        if (!res.ok) throw new Error(`Erreur API : ${res.status} ${res.statusText}`);
         const data = await res.json();
         document.getElementById("resultat").innerText = `Texte : ${data.text}\nSentiment : ${data.sentiment}`;
       } catch (error) {
-        console.error("Erreur dans getSentiment :", error);
-        document.getElementById("resultat").innerText = `Erreur lors de la requête : ${error.message}`;
+        document.getElementById("resultat").innerText = `Erreur : ${error.message}`;
       }
     }
 
@@ -135,35 +138,29 @@
     }
 
     async function submitAnnotation() {
-      const annotation = {
-        text: "Ce texte est un exemple pour annotation.",
-        label: 1
-      };
+      const text = document.getElementById("annotation-text").value.trim();
+      const label = parseInt(document.getElementById("annotation-label").value);
 
-      console.log("Envoi de l'annotation :", annotation);
+      if (!text) {
+        document.getElementById("annotation-result").innerText = "Veuillez entrer un texte à annoter.";
+        return;
+      }
+
+      const annotation = { text, label };
 
       try {
         const res = await fetch(`${API_URL}/submit_annotation`, {
           method: "POST",
-          headers: {
-            "Content-Type": "application/json"
-          },
+          headers: { "Content-Type": "application/json" },
           body: JSON.stringify(annotation)
         });
 
-        console.log("Réponse brute de l'API :", res);
-
-        if (!res.ok) {
-          throw new Error(`Erreur HTTP : ${res.status} ${res.statusText}`);
-        }
+        if (!res.ok) throw new Error(`Erreur HTTP : ${res.status} ${res.statusText}`);
 
         const data = await res.json();
-        console.log("Réponse JSON :", data);
-
         document.getElementById("annotation-result").innerText = data.message;
       } catch (error) {
-        console.error("Erreur lors de l'envoi de l'annotation :", error);
-        document.getElementById("annotation-result").innerText = `Erreur lors de l'envoi : ${error.message}`;
+        document.getElementById("annotation-result").innerText = `Erreur : ${error.message}`;
       }
     }
 
@@ -184,7 +181,6 @@
           throw new Error("API non disponible");
         }
       } catch (error) {
-        console.log("Détails de l'erreur :", error);
         document.getElementById("api-status").innerText = `Erreur : ${error.message}`;
         document.getElementById("api-status").style.color = "red";
       }
