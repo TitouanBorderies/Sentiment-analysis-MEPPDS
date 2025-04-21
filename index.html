@@ -52,6 +52,12 @@
       margin-top: 20px;
       font-size: 16px;
     }
+
+    #annotations-list {
+      margin-top: 20px;
+      font-size: 14px;
+      white-space: pre-wrap; /* Allow line breaks */
+    }
   </style>
 </head>
 <body>
@@ -68,30 +74,23 @@
       <!-- Champ de texte pour entrer une phrase -->
       <input type="text" id="texte-input" class="input-texte" placeholder="Entrez votre texte ici..." />
 
-      <!-- Champs pour l'annotation -->
-      <input type="text" id="annotation-text" class="input-texte" placeholder="Texte à annoter" />
-      <select id="annotation-label" class="input-texte">
-        <option value="0">Négatif</option>
-        <option value="1">Neutre</option>
-        <option value="2">Positif</option>
-      </select>
-
-      <div style="max-height: 400px; overflow-y: auto; margin-top: 20px;"></div>
-
-      <!-- Boutons -->
+      <div id="dynamic-content" style="max-height: 400px; overflow-y: auto; margin-top: 20px;"></div>
       <button class="button" onclick="getSentiment()">Tester le modèle sur un texte</button>
-      <div id="resultat"></div>
       <button class="button" onclick="getLastMessageSentiment()">Tester le modèle sur le dernier message Le Monde</button>
       <button class="button" onclick="getTitlesWithSentiment()">Charger les titres Le Monde avec sentiment</button>
-      <div id="titres"></div>
       <button class="button" onclick="submitAnnotation()">Soumettre une annotation</button>
-      <div id="annotation-result"></div>
-      <button class="button" onclick="getAnnotations()">Afficher les annotations</button>
       <button class="button" onclick="retrainModel()">Réentraîner le modèle</button>
-      <div id="retrain-result"></div>
       <button class="button" onclick="checkApiStatus()">Vérifier la connexion à l'API</button>
-      <div id="welcome-message"></div>
-      <div id="api-status"></div>
+      <button class="button" onclick="loadAnnotations()">Afficher les annotations</button> <!-- New button -->
+
+      <div id="dynamic-content" style="max-height: 400px; overflow-y: auto; margin-top: 20px;">
+        <div id="resultat"></div>
+        <div id="titres"></div>
+        <div id="retrain-result"></div>
+        <div id="annotation-result"></div>
+        <div id="welcome-message"></div>
+        <div id="api-status"></div>
+        <div id="annotations-list"></div> <!-- Section for annotations -->
       </div>
     </div>
   </div>
@@ -107,12 +106,16 @@
       }
 
       try {
+        console.log("Texte envoyé à l'API :", inputText);
         const res = await fetch(`${API_URL}/predict_text?text=${encodeURIComponent(inputText)}`);
-        if (!res.ok) throw new Error(`Erreur API : ${res.status} ${res.statusText}`);
+        if (!res.ok) {
+          throw new Error(`Erreur API : ${res.status} ${res.statusText}`);
+        }
         const data = await res.json();
         document.getElementById("resultat").innerText = `Texte : ${data.text}\nSentiment : ${data.sentiment}`;
       } catch (error) {
-        document.getElementById("resultat").innerText = `Erreur : ${error.message}`;
+        console.error("Erreur dans getSentiment :", error);
+        document.getElementById("resultat").innerText = `Erreur lors de la requête : ${error.message}`;
       }
     }
 
@@ -139,79 +142,43 @@
     }
 
     async function submitAnnotation() {
-      const text = document.getElementById("annotation-text").value.trim();
-      const label = parseInt(document.getElementById("annotation-label").value);
+      const annotation = {
+        text: "Ce texte est un exemple pour annotation.",
+        label: 1
+      };
 
-      if (!text) {
-        document.getElementById("annotation-result").innerText = "Veuillez entrer un texte à annoter.";
-        return;
-      }
-
-      const annotation = { text, label };
+      console.log("Envoi de l'annotation :", annotation);
 
       try {
         const res = await fetch(`${API_URL}/submit_annotation`, {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
+          headers: {
+            "Content-Type": "application/json"
+          },
           body: JSON.stringify(annotation)
         });
 
-        if (!res.ok) throw new Error(`Erreur HTTP : ${res.status} ${res.statusText}`);
+        console.log("Réponse brute de l'API :", res);
+
+        if (!res.ok) {
+          throw new Error(`Erreur HTTP : ${res.status} ${res.statusText}`);
+        }
 
         const data = await res.json();
+        console.log("Réponse JSON :", data);
+
         document.getElementById("annotation-result").innerText = data.message;
       } catch (error) {
-        document.getElementById("annotation-result").innerText = `Erreur : ${error.message}`;
+        console.error("Erreur lors de l'envoi de l'annotation :", error);
+        document.getElementById("annotation-result").innerText = `Erreur lors de l'envoi : ${error.message}`;
       }
     }
 
     async function retrainModel() {
-  const resultDiv = document.getElementById("retrain-result");
-  resultDiv.innerText = "Réentrainement en cours...";
-  resultDiv.style.color = "black";
-
-  try {
-    const res = await fetch(`${API_URL}/retrain_model`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      }
-    });
-
-    if (!res.ok) throw new Error(`Erreur HTTP : ${res.status} ${res.statusText}`);
-
-    const data = await res.json();
-    resultDiv.innerText = data.message || "Modèle réentraîné avec succès.";
-    resultDiv.style.color = "green";
-  } catch (error) {
-    resultDiv.innerText = `Erreur lors du réentraînement : ${error.message}`;
-    resultDiv.style.color = "red";
-  }
-}
-
-async function getAnnotations() {
-  const resultDiv = document.getElementById("annotation-result");
-  resultDiv.innerText = "Chargement des annotations...";
-  resultDiv.style.color = "black";
-
-  try {
-    const res = await fetch(`${API_URL}/annotations`);
-    if (!res.ok) throw new Error(`Erreur HTTP : ${res.status} ${res.statusText}`);
-
-    const data = await res.json();
-
-    if (!Array.isArray(data)) {
-      throw new Error("Format de réponse inattendu");
+      const res = await fetch(`${API_URL}/retrain_model`, { method: "POST" });
+      const data = await res.json();
+      document.getElementById("retrain-result").innerText = data.message;
     }
-
-    const list = data.map((ann, i) => `${i + 1}. Texte: "${ann.text}" → Label: ${ann.label}`).join("\n");
-    resultDiv.innerText = list || "Aucune annotation enregistrée.";
-    resultDiv.style.whiteSpace = "pre-wrap"; // Pour afficher les retours à la ligne
-  } catch (error) {
-    resultDiv.innerText = `Erreur lors du chargement des annotations : ${error.message}`;
-    resultDiv.style.color = "red";
-  }
-}
 
     async function checkApiStatus() {
       try {
@@ -224,10 +191,39 @@ async function getAnnotations() {
           throw new Error("API non disponible");
         }
       } catch (error) {
+        console.log("Détails de l'erreur :", error);
         document.getElementById("api-status").innerText = `Erreur : ${error.message}`;
         document.getElementById("api-status").style.color = "red";
       }
     }
+
+    async function loadAnnotations() {
+  try {
+    // Utilisation de l'URL de l'API pour récupérer les annotations (assume que l'API renvoie un fichier JSON ou le transforme en JSON)
+    const res = await fetch("/annotations/annotations.jsonl");
+
+    if (!res.ok) {
+      throw new Error(`Erreur HTTP : ${res.status} ${res.statusText}`);
+    }
+
+    const data = await res.json();
+
+    // Vérifie si des annotations existent
+    const annotationsContainer = document.getElementById("annotations-list");
+    annotationsContainer.innerHTML = "<h3>Annotations</h3>";
+
+    // Parcours des annotations et affiche chaque annotation
+    data.annotations.forEach(annotation => {
+      const div = document.createElement("div");
+      div.classList.add("annotation-item");
+      div.innerHTML = `<strong>Texte :</strong> ${annotation.text}<br><strong>Label :</strong> ${annotation.label}`;
+      annotationsContainer.appendChild(div);
+    });
+  } catch (error) {
+    console.error("Erreur lors du chargement des annotations :", error);
+    document.getElementById("annotations-list").innerText = `Erreur lors du chargement des annotations : ${error.message}`;
+  }
+}
   </script>
 </body>
 </html>
