@@ -119,10 +119,14 @@
     }
 
     async function submitAnnotation() {
-      const annotation = {
-        text: "Ce texte est un exemple pour annotation.",
-        label: 1  // Par exemple, 1 pour un sentiment positif
-      };
+    const annotation = {
+      text: "Ce texte est un exemple pour annotation.",
+      label: 1  // Par exemple, 1 pour un sentiment positif
+    };
+
+    console.log("Envoi de l'annotation :", annotation);
+
+    try {
       const res = await fetch(`${API_URL}/submit_annotation`, {
         method: "POST",
         headers: {
@@ -130,9 +134,22 @@
         },
         body: JSON.stringify(annotation)
       });
+
+      console.log("Réponse brute de l'API :", res);
+
+      if (!res.ok) {
+        throw new Error(`Erreur HTTP : ${res.status} ${res.statusText}`);
+      }
+
       const data = await res.json();
+      console.log("Réponse JSON :", data);
+
       document.getElementById("annotation-result").innerText = data.message;
+    } catch (error) {
+      console.error("Erreur lors de l'envoi de l'annotation :", error);
+      document.getElementById("annotation-result").innerText = `Erreur lors de l'envoi : ${error.message}`;
     }
+  }
 
     async function retrainModel() {
       const res = await fetch(`${API_URL}/retrain_model`, {
