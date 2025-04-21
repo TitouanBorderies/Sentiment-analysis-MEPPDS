@@ -71,12 +71,14 @@
         <img src="https://storage.googleapis.com/media-newsinitiative/images/Le_Monde_Logo.original.png" alt="BERT illustration">
       </div>
 
+      <div id="dynamic-content" style="max-height: 400px; overflow-y: auto; margin-top: 20px;"></div>
       <button class="button" onclick="getSentiment()">Tester le modèle sur un texte</button>
       <button class="button" onclick="getLastMessageSentiment()">Tester le modèle sur le dernier message Le Monde</button>
       <button class="button" onclick="getTitlesWithSentiment()">Charger les titres Le Monde avec sentiment</button>
       <button class="button" onclick="submitAnnotation()">Soumettre une annotation</button>
       <button class="button" onclick="retrainModel()">Réentraîner le modèle</button>
       <button class="button" onclick="checkApiStatus()">Vérifier la connexion à l'API</button>
+      </div>
 
       <div id="dynamic-content" style="max-height: 400px; overflow-y: auto; margin-top: 20px;">
         <div id="resultat"></div>
