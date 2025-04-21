@@ -43,26 +43,20 @@
 
     .images-section {
       display: flex;
-      flex-direction: column; /* Affichage des images en colonne */
       justify-content: center;
+      gap: 40px;
       margin-top: 30px;
-      align-items: center; /* Centrer les images */
     }
 
     .images-section img {
       max-width: 250px;
       border-radius: 10px;
       box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
-      margin-bottom: 20px; /* Espacement entre les images */
     }
 
-    #resultat, #titres, #retrain-result, #annotation-result, #welcome-message, #api-status {
+    #resultat, #titres, #retrain-result, #annotation-result, #api-status {
       margin-top: 20px;
       font-size: 16px;
-    }
-
-    #api-status {
-      font-weight: bold;
     }
   </style>
 </head>
@@ -82,8 +76,7 @@
       <button class="button" onclick="getTitlesWithSentiment()">Charger les titres Le Monde avec sentiment</button>
       <button class="button" onclick="submitAnnotation()">Soumettre une annotation</button>
       <button class="button" onclick="retrainModel()">Réentraîner le modèle</button>
-      <button class="button" onclick="getWelcomeMessage()">Afficher le message de bienvenue</button>
-      <button class="button" onclick="checkApiStatus()">Vérifier la connexion API</button> <!-- Nouveau bouton -->
+      <button class="button" onclick="checkApiStatus()">Vérifier la connexion à l'API</button>
 
       <div id="dynamic-content" style="max-height: 400px; overflow-y: auto; margin-top: 20px;">
         <div id="resultat"></div>
@@ -129,10 +122,14 @@
     }
 
     async function submitAnnotation() {
-      const annotation = {
-        text: "Ce texte est un exemple pour annotation.",
-        label: 1  // Par exemple, 1 pour un sentiment positif
-      };
+    const annotation = {
+      text: "Ce texte est un exemple pour annotation.",
+      label: 1  // Par exemple, 1 pour un sentiment positif
+    };
+
+    console.log("Envoi de l'annotation :", annotation);
+
+    try {
       const res = await fetch(`${API_URL}/submit_annotation`, {
         method: "POST",
         headers: {
@@ -140,9 +137,22 @@
         },
         body: JSON.stringify(annotation)
       });
+
+      console.log("Réponse brute de l'API :", res);
+
+      if (!res.ok) {
+        throw new Error(`Erreur HTTP : ${res.status} ${res.statusText}`);
+      }
+
       const data = await res.json();
+      console.log("Réponse JSON :", data);
+
       document.getElementById("annotation-result").innerText = data.message;
+    } catch (error) {
+      console.error("Erreur lors de l'envoi de l'annotation :", error);
+      document.getElementById("annotation-result").innerText = `Erreur lors de l'envoi : ${error.message}`;
     }
+  }
 
     async function retrainModel() {
       const res = await fetch(`${API_URL}/retrain_model`, {
@@ -152,14 +162,6 @@
       document.getElementById("retrain-result").innerText = data.message;
     }
 
-    // Fonction pour récupérer le message de bienvenue
-    async function getWelcomeMessage() {
-      const res = await fetch(`${API_URL}/`);
-      const data = await res.json();
-      document.getElementById("welcome-message").innerText = `${data.message} \nModèle : ${data.model}`;
-    }
-
-    // Nouvelle fonction pour vérifier l'état de la connexion à l'API
     async function checkApiStatus() {
       try {
         const res = await fetch(`${API_URL}/`);
@@ -171,6 +173,7 @@
           throw new Error("API non disponible");
         }
       } catch (error) {
+        console.log('Détails de l\'erreur de connexion à l\'API :', error); // Affiche plus de détails sur l'erreur
         document.getElementById("api-status").innerText = `Erreur de connexion à l'API : ${error.message}`;
         document.getElementById("api-status").style.color = "red";
       }
