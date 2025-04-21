@@ -25,12 +25,21 @@
     }
 
     .input-texte {
-      width: 100%;
       padding: 10px;
-      margin: 10px 0;
       font-size: 16px;
       border: 1px solid #ccc;
       border-radius: 8px;
+    }
+
+    .form-section {
+      display: flex;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+
+    .form-section input, .form-section select {
+      margin-right: 10px;
+      flex: 1;
     }
 
     .images-section {
@@ -52,6 +61,12 @@
       margin-top: 20px;
       font-size: 16px;
     }
+
+    .container {
+      max-width: 1000px;
+      margin: 0 auto;
+      padding: 20px;
+    }
   </style>
 </head>
 <body>
@@ -65,24 +80,26 @@
         <img src="https://storage.googleapis.com/media-newsinitiative/images/Le_Monde_Logo.original.png" alt="BERT illustration">
       </div>
 
-      <!-- Champ de texte pour entrer une phrase -->
-      <input type="text" id="texte-input" class="input-texte" placeholder="Entrez votre texte ici..." />
+      <!-- Section pour tester le modèle sur un texte -->
+      <div class="form-section">
+        <input type="text" id="texte-input" class="input-texte" placeholder="Entrez votre texte ici..." />
+        <button class="button" onclick="getSentiment()">Tester le modèle sur un texte</button>
+      </div>
 
-      <!-- Champs pour l'annotation -->
-      <input type="text" id="annotation-text" class="input-texte" placeholder="Texte à annoter" />
-      <select id="annotation-label" class="input-texte">
-        <option value="0">Négatif</option>
-        <option value="1">Neutre</option>
-        <option value="2">Positif</option>
-      </select>
+      <!-- Section pour l'annotation -->
+      <div class="form-section">
+        <input type="text" id="annotation-text" class="input-texte" placeholder="Texte à annoter" />
+        <select id="annotation-label" class="input-texte">
+          <option value="0">Négatif</option>
+          <option value="1">Neutre</option>
+          <option value="2">Positif</option>
+        </select>
+        <button class="button" onclick="submitAnnotation()">Soumettre une annotation</button>
+      </div>
 
-      <div style="max-height: 400px; overflow-y: auto; margin-top: 20px;"></div>
-
-      <!-- Boutons -->
-      <button class="button" onclick="getSentiment()">Tester le modèle sur un texte</button>
+      <!-- Boutons pour les autres fonctionnalités -->
       <button class="button" onclick="getLastMessageSentiment()">Tester le modèle sur le dernier message Le Monde</button>
       <button class="button" onclick="getTitlesWithSentiment()">Charger les titres Le Monde avec sentiment</button>
-      <button class="button" onclick="submitAnnotation()">Soumettre une annotation</button>
       <button class="button" onclick="retrainModel()">Réentraîner le modèle</button>
       <button class="button" onclick="checkApiStatus()">Vérifier la connexion à l'API</button>
 
