@@ -7,14 +7,19 @@
   <link rel="stylesheet" href="site/style.css" />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
   <style>
+    body {
+      font-family: 'Inter', sans-serif;
+      font-size: 14px; /* Taille de police réduite pour une meilleure lisibilité */
+    }
+
     .button {
       background-color: #4A90E2;
       border: none;
       color: white;
-      padding: 10px 20px;
+      padding: 8px 16px;
       margin: 5px;
       text-align: center;
-      font-size: 16px;
+      font-size: 14px; /* Taille de police réduite pour les boutons */
       border-radius: 8px;
       cursor: pointer;
       transition: background-color 0.3s ease;
@@ -25,12 +30,21 @@
     }
 
     .input-texte {
-      width: 100%;
-      padding: 10px;
-      margin: 10px 0;
-      font-size: 16px;
+      padding: 8px;
+      font-size: 14px; /* Réduction de la taille de la police pour les champs de texte */
       border: 1px solid #ccc;
       border-radius: 8px;
+    }
+
+    .form-section {
+      display: flex;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+
+    .form-section input, .form-section select {
+      margin-right: 10px;
+      flex: 1;
     }
 
     .images-section {
@@ -38,19 +52,67 @@
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      gap: 40px;
+      gap: 20px;
       margin-top: 30px;
     }
 
     .images-section img {
-      max-width: 250px;
+      max-width: 200px; /* Réduction de la taille des images */
       border-radius: 10px;
       box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
     }
 
     #resultat, #titres, #retrain-result, #annotation-result, #api-status {
       margin-top: 20px;
-      font-size: 16px;
+      font-size: 14px; /* Réduction de la taille de la police pour les résultats */
+    }
+
+    .container {
+  max-width: 1400px; /* élargi à 1400px */
+  width: 95vw; /* presque toute la largeur de l’écran */
+  margin: 0 auto;
+  padding: 20px 40px; /* plus de padding horizontal */
+}
+
+
+    /* Section informations */
+    .info-section {
+      margin-top: 40px;
+      text-align: center;
+    }
+
+    .info-section h2 {
+      font-size: 18px;
+      margin-bottom: 10px;
+    }
+
+    .info-section p {
+      font-size: 14px;
+      margin: 5px 0;
+    }
+
+    /* Responsivité : ajustement de la taille de la police et des images pour les petits écrans */
+    @media (max-width: 768px) {
+      body {
+        font-size: 12px; /* Police plus petite sur les écrans mobiles */
+      }
+
+      .images-section img {
+        max-width: 150px; /* Réduire davantage les images sur les petits écrans */
+      }
+
+      .button {
+        font-size: 12px; /* Réduire la taille des boutons sur les petits écrans */
+        padding: 6px 12px;
+      }
+
+      .input-texte {
+        font-size: 12px; /* Réduction de la taille des champs de texte sur les petits écrans */
+      }
+
+      .form-section input, .form-section select {
+        font-size: 12px; /* Réduction de la taille des champs de sélection */
+      }
     }
   </style>
 </head>
@@ -65,33 +127,42 @@
         <img src="https://storage.googleapis.com/media-newsinitiative/images/Le_Monde_Logo.original.png" alt="BERT illustration">
       </div>
 
-      <!-- Champ de texte pour entrer une phrase -->
-      <input type="text" id="texte-input" class="input-texte" placeholder="Entrez votre texte ici..." />
+      <!-- Section pour tester le modèle sur un texte -->
+      <div class="form-section">
+        <input type="text" id="texte-input" class="input-texte" placeholder="Entrez votre texte ici..." />
+        <button class="button" onclick="getSentiment()">Tester le modèle sur votre phrase</button>
+      </div>
 
-      <!-- Champs pour l'annotation -->
-      <input type="text" id="annotation-text" class="input-texte" placeholder="Texte à annoter" />
-      <select id="annotation-label" class="input-texte">
-        <option value="0">Négatif</option>
-        <option value="1">Neutre</option>
-        <option value="2">Positif</option>
-      </select>
+      <!-- Section pour l'annotation -->
+      <div class="form-section">
+        <input type="text" id="annotation-text" class="input-texte" placeholder="Texte à annoter" />
+        <select id="annotation-label" class="input-texte">
+          <option value="0">Négatif</option>
+          <option value="1">Neutre</option>
+          <option value="2">Positif</option>
+        </select>
+        <button class="button" onclick="submitAnnotation()">Nouvelle annotation</button>
+      </div>
 
-      <div style="max-height: 400px; overflow-y: auto; margin-top: 20px;"></div>
-
-      <!-- Boutons -->
-      <button class="button" onclick="getSentiment()">Tester le modèle sur un texte</button>
-      <div id="resultat"></div>
-      <button class="button" onclick="getLastMessageSentiment()">Tester le modèle sur le dernier message Le Monde</button>
-      <button class="button" onclick="getTitlesWithSentiment()">Charger les titres Le Monde avec sentiment</button>
-      <div id="titres"></div>
-      <button class="button" onclick="submitAnnotation()">Soumettre une annotation</button>
-      <div id="annotation-result"></div>
-      <button class="button" onclick="getAnnotations()">Afficher les annotations</button>
+      <!-- Boutons pour les autres fonctionnalités -->
+      <button class="button" onclick="getLastMessageSentiment()">Dernier titre du Monde</button>
+      <button class="button" onclick="getTitlesWithSentiment()">Les dix derniers titres du Monde</button>
       <button class="button" onclick="retrainModel()">Réentraîner le modèle</button>
-      <div id="retrain-result"></div>
       <button class="button" onclick="checkApiStatus()">Vérifier la connexion à l'API</button>
-      <div id="welcome-message"></div>
+
+      <!-- Résultats -->
+      <div id="resultat"></div>
+      <div id="titres"></div>
+      <div id="retrain-result"></div>
+      <div id="annotation-result"></div>
       <div id="api-status"></div>
+
+      <!-- Section informations sur le projet -->
+      <div class="info-section">
+        <h2>Informations sur le projet</h2>
+        <p><strong>Auteurs : </strong>Titouan BORDERIES et Théo Gaboriaud</p>
+        <p><strong>Projet : </strong>Le Monde Sentiment Analysis</p>
+        <p><strong>Cours : </strong>Mise en production de projets de Data Science</p>
       </div>
     </div>
   </div>
@@ -99,10 +170,19 @@
   <script>
     const API_URL = "https://sentiment-theo.lab.sspcloud.fr";
 
+    // Fonction générique pour afficher un message avec un délai avant de le cacher
+    function showMessageWithTimeout(elementId, message, timeout = 5000) {
+      const element = document.getElementById(elementId);
+      element.innerText = message;
+      setTimeout(() => {
+        element.innerText = '';
+      }, timeout);
+    }
+
     async function getSentiment() {
       const inputText = document.getElementById("texte-input").value.trim();
       if (!inputText) {
-        document.getElementById("resultat").innerText = "Veuillez entrer un texte à analyser.";
+        showMessageWithTimeout("resultat", "Veuillez entrer un texte à analyser.");
         return;
       }
 
@@ -110,16 +190,16 @@
         const res = await fetch(`${API_URL}/predict_text?text=${encodeURIComponent(inputText)}`);
         if (!res.ok) throw new Error(`Erreur API : ${res.status} ${res.statusText}`);
         const data = await res.json();
-        document.getElementById("resultat").innerText = `Texte : ${data.text}\nSentiment : ${data.sentiment}`;
+        showMessageWithTimeout("resultat", `Texte : ${data.text}\nSentiment : ${data.sentiment}`);
       } catch (error) {
-        document.getElementById("resultat").innerText = `Erreur : ${error.message}`;
+        showMessageWithTimeout("resultat", `Erreur : ${error.message}`);
       }
     }
 
     async function getLastMessageSentiment() {
       const res = await fetch(`${API_URL}/predict_last_message`);
       const data = await res.json();
-      document.getElementById("resultat").innerText = `Message : ${data.message} \nSentiment : ${data.sentiment}`;
+      showMessageWithTimeout("resultat", `Message : ${data.message} \nSentiment : ${data.sentiment}`);
     }
 
     async function getTitlesWithSentiment() {
@@ -143,7 +223,7 @@
       const label = parseInt(document.getElementById("annotation-label").value);
 
       if (!text) {
-        document.getElementById("annotation-result").innerText = "Veuillez entrer un texte à annoter.";
+        showMessageWithTimeout("annotation-result", "Veuillez entrer un texte à annoter.");
         return;
       }
 
@@ -159,73 +239,34 @@
         if (!res.ok) throw new Error(`Erreur HTTP : ${res.status} ${res.statusText}`);
 
         const data = await res.json();
-        document.getElementById("annotation-result").innerText = data.message;
+        showMessageWithTimeout("annotation-result", data.message);
       } catch (error) {
-        document.getElementById("annotation-result").innerText = `Erreur : ${error.message}`;
+        showMessageWithTimeout("annotation-result", `Erreur : ${error.message}`);
       }
     }
 
     async function retrainModel() {
-  const resultDiv = document.getElementById("retrain-result");
-  resultDiv.innerText = "Réentrainement en cours...";
-  resultDiv.style.color = "black";
+      try {
+        const res = await fetch(`${API_URL}/retrain_model`, { method: "POST" });
+        if (!res.ok) throw new Error(`Erreur HTTP : ${res.status} ${res.statusText}`);
 
-  try {
-    const res = await fetch(`${API_URL}/retrain_model`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
+        const data = await res.json();
+        showMessageWithTimeout("retrain-result", `Réponse du serveur : ${data.message}\nDétails : ${JSON.stringify(data)}`);
+      } catch (error) {
+        showMessageWithTimeout("retrain-result", `Erreur : ${error.message}`);
       }
-    });
-
-    if (!res.ok) throw new Error(`Erreur HTTP : ${res.status} ${res.statusText}`);
-
-    const data = await res.json();
-    resultDiv.innerText = data.message || "Modèle réentraîné avec succès.";
-    resultDiv.style.color = "green";
-  } catch (error) {
-    resultDiv.innerText = `Erreur lors du réentraînement : ${error.message}`;
-    resultDiv.style.color = "red";
-  }
-}
-
-async function getAnnotations() {
-  const resultDiv = document.getElementById("annotation-result");
-  resultDiv.innerText = "Chargement des annotations...";
-  resultDiv.style.color = "black";
-
-  try {
-    const res = await fetch(`${API_URL}/annotations`);
-    if (!res.ok) throw new Error(`Erreur HTTP : ${res.status} ${res.statusText}`);
-
-    const data = await res.json();
-
-    if (!Array.isArray(data)) {
-      throw new Error("Format de réponse inattendu");
     }
-
-    const list = data.map((ann, i) => `${i + 1}. Texte: "${ann.text}" → Label: ${ann.label}`).join("\n");
-    resultDiv.innerText = list || "Aucune annotation enregistrée.";
-    resultDiv.style.whiteSpace = "pre-wrap"; // Pour afficher les retours à la ligne
-  } catch (error) {
-    resultDiv.innerText = `Erreur lors du chargement des annotations : ${error.message}`;
-    resultDiv.style.color = "red";
-  }
-}
 
     async function checkApiStatus() {
       try {
         const res = await fetch(`${API_URL}/`);
         if (res.ok) {
-          const data = await res.json();
-          document.getElementById("api-status").innerText = `Connexion réussie à l'API : ${data.message}`;
-          document.getElementById("api-status").style.color = "green";
+          showMessageWithTimeout("api-status", "L'API est en ligne !");
         } else {
-          throw new Error("API non disponible");
+          showMessageWithTimeout("api-status", "L'API n'est pas disponible.");
         }
       } catch (error) {
-        document.getElementById("api-status").innerText = `Erreur : ${error.message}`;
-        document.getElementById("api-status").style.color = "red";
+        showMessageWithTimeout("api-status", `Erreur : ${error.message}`);
       }
     }
   </script>
