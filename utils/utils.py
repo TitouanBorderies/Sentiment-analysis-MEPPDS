@@ -10,6 +10,7 @@ PATH_TO_DATA = os.environ.get("PATH_TO_DATA", "")
 
 
 def get_parquet_from_path(path):
+    """Load a Parquet file from an S3 bucket and return it as a pandas DataFrame."""
     global BUCKET
     global PATH_TO_DATA
     global endpoint

@@ -6,77 +6,149 @@
   <title>Analyse de Sentiment</title>
   <link rel="stylesheet" href="site/style.css" />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    .button {
+      background-color: #4A90E2;
+      border: none;
+      color: white;
+      padding: 10px 20px;
+      margin: 5px;
+      text-align: center;
+      font-size: 16px;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+
+    .button:hover {
+      background-color: #357ABD;
+    }
+
+    .titre-section {
+      margin-top: 30px;
+      padding: 15px;
+      background-color: #f1f5f9;
+      border-radius: 10px;
+    }
+
+    .titre-section h2 {
+      font-size: 20px;
+      margin-bottom: 10px;
+    }
+
+    .titre {
+      margin-bottom: 5px;
+      font-weight: 500;
+    }
+
+    .images-section {
+      display: flex;
+      flex-direction: column; /* Affichage des images en colonne */
+      justify-content: center;
+      margin-top: 30px;
+      align-items: center; /* Centrer les images */
+    }
+
+    .images-section img {
+      max-width: 250px;
+      border-radius: 10px;
+      box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+      margin-bottom: 20px; /* Espacement entre les images */
+    }
+
+    #resultat, #titres, #retrain-result, #annotation-result, #welcome-message {
+      margin-top: 20px;
+      font-size: 16px;
+    }
+  </style>
 </head>
 <body>
   <div class="container">
     <div class="card">
-      <h1>Bienvenue sur l'API d'Analyse de Sentiment 👋</h1>
-      <p>Interagissez avec notre modèle de sentiment BERT en soumettant des textes et des annotations.</p>
+      <h1>Bienvenue 👋</h1>
+      <p>Ce site permet d’interagir avec notre API de sentiment analysis et de voir les derniers titres du journal Le Monde.</p>
 
-      <div>
-        <h2>1. Prédire le sentiment d'un texte</h2>
-        <input type="text" id="inputText" placeholder="Entrez un texte ici" />
-        <button onclick="predictSentiment()">Analyser le sentiment</button>
-        <p id="predictionResult"></p>
+      <div class="images-section">
+        <img src="https://sesameworkshop.org/wp-content/uploads/2023/03/presskit_ss_bio_bert.png" alt="Logo Le Monde">
+        <img src="https://storage.googleapis.com/media-newsinitiative/images/Le_Monde_Logo.original.png" alt="BERT illustration">
       </div>
 
-      <div>
-        <h2>2. Soumettre une annotation</h2>
-        <textarea id="annotationText" placeholder="Texte annoté..." rows="4" cols="50"></textarea><br/>
-        <input type="number" id="annotationLabel" placeholder="Label (0 ou 1)" /><br/>
-        <button onclick="submitAnnotation()">Soumettre Annotation</button>
-        <p id="annotationResult"></p>
-      </div>
+      <button class="button" onclick="getSentiment()">Tester le modèle sur un texte</button>
+      <button class="button" onclick="getLastMessageSentiment()">Tester le modèle sur le dernier message Le Monde</button>
+      <button class="button" onclick="getTitlesWithSentiment()">Charger les titres Le Monde avec sentiment</button>
+      <button class="button" onclick="submitAnnotation()">Soumettre une annotation</button>
+      <button class="button" onclick="retrainModel()">Réentraîner le modèle</button>
+      <button class="button" onclick="getWelcomeMessage()">Afficher le message de bienvenue</button> <!-- Nouveau bouton -->
 
-      <div>
-        <h2>3. Déclencher un réentraînement du modèle</h2>
-        <button onclick="retrainModel()">Réentraîner le modèle</button>
-        <p id="retrainResult"></p>
-      </div>
+      <div id="resultat"></div>
+      <div id="titres"></div>
+      <div id="retrain-result"></div>
+      <div id="annotation-result"></div>
+      <div id="welcome-message"></div> <!-- Div pour afficher le message de bienvenue -->
     </div>
   </div>
 
   <script>
-    // URL de l'API FastAPI
-    const apiUrl = "http://127.0.0.1:8000";
+    const API_URL = "http://sentiment-theo.lab.sspcloud.fr";  // Changez l'URL si nécessaire
 
-    // Fonction pour prédire le sentiment
-    async function predictSentiment() {
-      const text = document.getElementById('inputText').value;
-      const response = await fetch(`${apiUrl}/predict_text?text=${encodeURIComponent(text)}`);
-      const data = await response.json();
-      document.getElementById('predictionResult').innerHTML = `Sentiment: ${data.sentiment}`;
+    async function getSentiment() {
+      const text = "La situation est tendue.";
+      const res = await fetch(`${API_URL}/predict_text?text=${encodeURIComponent(text)}`);
+      const data = await res.json();
+      document.getElementById("resultat").innerText = `Texte : ${data.text} \nSentiment : ${data.sentiment}`;
     }
 
-    // Fonction pour soumettre une annotation
-    async function submitAnnotation() {
-      const text = document.getElementById('annotationText').value;
-      const label = document.getElementById('annotationLabel').value;
+    async function getLastMessageSentiment() {
+      const res = await fetch(`${API_URL}/predict_last_message`);
+      const data = await res.json();
+      document.getElementById("resultat").innerText = `Message : ${data.message} \nSentiment : ${data.sentiment}`;
+    }
 
-      if (!text || label === '') {
-        alert('Veuillez entrer un texte et un label.');
-        return;
+    async function getTitlesWithSentiment() {
+      const res = await fetch(`${API_URL}/get_last_titles`);
+      const data = await res.json();
+      const titresContainer = document.getElementById("titres");
+      titresContainer.innerHTML = "";
+      for (let i = 0; i < data.titres.length; i++) {
+        const titre = data.titres[i];
+        const sentimentRes = await fetch(`${API_URL}/predict_text?text=${encodeURIComponent(titre)}`);
+        const sentimentData = await sentimentRes.json();
+        const p = document.createElement("p");
+        p.classList.add("titre");
+        p.innerHTML = `${i + 1}. <strong>${titre}</strong> <span>Sentiment : ${sentimentData.sentiment}</span>`;
+        titresContainer.appendChild(p);
       }
+    }
 
-      const annotation = { text: text, label: parseInt(label) };
-
-      const response = await fetch(`${apiUrl}/submit_annotation`, {
-        method: 'POST',
+    async function submitAnnotation() {
+      const annotation = {
+        text: "Ce texte est un exemple pour annotation.",
+        label: 1  // Par exemple, 1 pour un sentiment positif
+      };
+      const res = await fetch(`${API_URL}/submit_annotation`, {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json'
+          "Content-Type": "application/json"
         },
         body: JSON.stringify(annotation)
       });
-
-      const result = await response.json();
-      document.getElementById('annotationResult').innerHTML = result.message;
+      const data = await res.json();
+      document.getElementById("annotation-result").innerText = data.message;
     }
 
-    // Fonction pour réentraîner le modèle
     async function retrainModel() {
-      const response = await fetch(`${apiUrl}/retrain_model`, { method: 'POST' });
-      const result = await response.json();
-      document.getElementById('retrainResult').innerHTML = result.message;
+      const res = await fetch(`${API_URL}/retrain_model`, {
+        method: "POST"
+      });
+      const data = await res.json();
+      document.getElementById("retrain-result").innerText = data.message;
+    }
+
+    // Nouvelle fonction pour récupérer le message de bienvenue
+    async function getWelcomeMessage() {
+      const res = await fetch(`${API_URL}/`);
+      const data = await res.json();
+      document.getElementById("welcome-message").innerText = `${data.message} \nModèle : ${data.model}`;
     }
   </script>
 </body>
