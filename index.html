@@ -56,9 +56,13 @@
       margin-bottom: 20px; /* Espacement entre les images */
     }
 
-    #resultat, #titres, #retrain-result, #annotation-result, #welcome-message {
+    #resultat, #titres, #retrain-result, #annotation-result, #welcome-message, #api-status {
       margin-top: 20px;
       font-size: 16px;
+    }
+
+    #api-status {
+      font-weight: bold;
     }
   </style>
 </head>
@@ -78,13 +82,15 @@
       <button class="button" onclick="getTitlesWithSentiment()">Charger les titres Le Monde avec sentiment</button>
       <button class="button" onclick="submitAnnotation()">Soumettre une annotation</button>
       <button class="button" onclick="retrainModel()">Réentraîner le modèle</button>
-      <button class="button" onclick="getWelcomeMessage()">Afficher le message de bienvenue</button> <!-- Nouveau bouton -->
+      <button class="button" onclick="getWelcomeMessage()">Afficher le message de bienvenue</button>
+      <button class="button" onclick="checkApiStatus()">Vérifier la connexion API</button> <!-- Nouveau bouton -->
 
       <div id="resultat"></div>
       <div id="titres"></div>
       <div id="retrain-result"></div>
       <div id="annotation-result"></div>
       <div id="welcome-message"></div> <!-- Div pour afficher le message de bienvenue -->
+      <div id="api-status"></div> <!-- Div pour afficher l'état de la connexion API -->
     </div>
   </div>
 
@@ -144,11 +150,28 @@
       document.getElementById("retrain-result").innerText = data.message;
     }
 
-    // Nouvelle fonction pour récupérer le message de bienvenue
+    // Fonction pour récupérer le message de bienvenue
     async function getWelcomeMessage() {
       const res = await fetch(`${API_URL}/`);
       const data = await res.json();
       document.getElementById("welcome-message").innerText = `${data.message} \nModèle : ${data.model}`;
+    }
+
+    // Nouvelle fonction pour vérifier l'état de la connexion à l'API
+    async function checkApiStatus() {
+      try {
+        const res = await fetch(`${API_URL}/`);
+        if (res.ok) {
+          const data = await res.json();
+          document.getElementById("api-status").innerText = `Connexion réussie à l'API : ${data.message}`;
+          document.getElementById("api-status").style.color = "green";
+        } else {
+          throw new Error("API non disponible");
+        }
+      } catch (error) {
+        document.getElementById("api-status").innerText = `Erreur de connexion à l'API : ${error.message}`;
+        document.getElementById("api-status").style.color = "red";
+      }
     }
   </script>
 </body>
