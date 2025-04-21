@@ -43,26 +43,20 @@
 
     .images-section {
       display: flex;
-      flex-direction: column; /* Affichage des images en colonne */
       justify-content: center;
+      gap: 40px;
       margin-top: 30px;
-      align-items: center; /* Centrer les images */
     }
 
     .images-section img {
       max-width: 250px;
       border-radius: 10px;
       box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
-      margin-bottom: 20px; /* Espacement entre les images */
     }
 
-    #resultat, #titres, #retrain-result, #annotation-result, #welcome-message, #api-status {
+    #resultat, #titres, #retrain-result, #annotation-result, #api-status {
       margin-top: 20px;
       font-size: 16px;
-    }
-
-    #api-status {
-      font-weight: bold;
     }
   </style>
 </head>
@@ -82,20 +76,18 @@
       <button class="button" onclick="getTitlesWithSentiment()">Charger les titres Le Monde avec sentiment</button>
       <button class="button" onclick="submitAnnotation()">Soumettre une annotation</button>
       <button class="button" onclick="retrainModel()">Réentraîner le modèle</button>
-      <button class="button" onclick="getWelcomeMessage()">Afficher le message de bienvenue</button>
-      <button class="button" onclick="checkApiStatus()">Vérifier la connexion API</button> <!-- Nouveau bouton -->
+      <button class="button" onclick="checkApiStatus()">Vérifier la connexion à l'API</button>
 
       <div id="resultat"></div>
       <div id="titres"></div>
       <div id="retrain-result"></div>
       <div id="annotation-result"></div>
-      <div id="welcome-message"></div> <!-- Div pour afficher le message de bienvenue -->
-      <div id="api-status"></div> <!-- Div pour afficher l'état de la connexion API -->
+      <div id="api-status"></div>
     </div>
   </div>
 
   <script>
-    const API_URL = "http://sentiment-theo.lab.sspcloud.fr";  // Changez l'URL si nécessaire
+    const API_URL = "https://sentiment-theo.lab.sspcloud.fr";  // Changez l'URL si nécessaire
 
     async function getSentiment() {
       const text = "La situation est tendue.";
@@ -150,14 +142,6 @@
       document.getElementById("retrain-result").innerText = data.message;
     }
 
-    // Fonction pour récupérer le message de bienvenue
-    async function getWelcomeMessage() {
-      const res = await fetch(`${API_URL}/`);
-      const data = await res.json();
-      document.getElementById("welcome-message").innerText = `${data.message} \nModèle : ${data.model}`;
-    }
-
-    // Nouvelle fonction pour vérifier l'état de la connexion à l'API
     async function checkApiStatus() {
       try {
         const res = await fetch(`${API_URL}/`);
@@ -169,6 +153,7 @@
           throw new Error("API non disponible");
         }
       } catch (error) {
+        console.log('Détails de l\'erreur de connexion à l\'API :', error); // Affiche plus de détails sur l'erreur
         document.getElementById("api-status").innerText = `Erreur de connexion à l'API : ${error.message}`;
         document.getElementById("api-status").style.color = "red";
       }
