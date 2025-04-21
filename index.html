@@ -24,39 +24,31 @@
       background-color: #357ABD;
     }
 
-    .titre-section {
-      margin-top: 30px;
-      padding: 15px;
-      background-color: #f1f5f9;
-      border-radius: 10px;
-    }
-
-    .titre-section h2 {
-      font-size: 20px;
-      margin-bottom: 10px;
-    }
-
-    .titre {
-      margin-bottom: 5px;
-      font-weight: 500;
+    .input-texte {
+      width: 100%;
+      padding: 10px;
+      margin: 10px 0;
+      font-size: 16px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
     }
 
     .images-section {
       display: flex;
-      flex-direction: column; /* Affichage des images en colonne */
+      flex-direction: column;
+      align-items: center;
       justify-content: center;
+      gap: 40px;
       margin-top: 30px;
-      align-items: center; /* Centrer les images */
     }
 
     .images-section img {
       max-width: 250px;
       border-radius: 10px;
       box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
-      margin-bottom: 20px; /* Espacement entre les images */
     }
 
-    #resultat, #titres, #retrain-result, #annotation-result, #welcome-message {
+    #resultat, #titres, #retrain-result, #annotation-result, #api-status {
       margin-top: 20px;
       font-size: 16px;
     }
@@ -66,36 +58,61 @@
   <div class="container">
     <div class="card">
       <h1>Bienvenue 👋</h1>
-      <p>Ce site permet d’interagir avec notre API de sentiment analysis et de voir les derniers titres du journal Le Monde.</p>
+      <p>Ce site permet d’interagir avec notre API de sentiment analysis et de la tester sur les derniers titres du Monde.</p>
 
       <div class="images-section">
         <img src="https://sesameworkshop.org/wp-content/uploads/2023/03/presskit_ss_bio_bert.png" alt="Logo Le Monde">
         <img src="https://storage.googleapis.com/media-newsinitiative/images/Le_Monde_Logo.original.png" alt="BERT illustration">
       </div>
 
+      <!-- Champ de texte pour entrer une phrase -->
+      <input type="text" id="texte-input" class="input-texte" placeholder="Entrez votre texte ici..." />
+
+      <!-- Champs pour l'annotation -->
+      <input type="text" id="annotation-text" class="input-texte" placeholder="Texte à annoter" />
+      <select id="annotation-label" class="input-texte">
+        <option value="0">Négatif</option>
+        <option value="1">Neutre</option>
+        <option value="2">Positif</option>
+      </select>
+
+      <div style="max-height: 400px; overflow-y: auto; margin-top: 20px;"></div>
+
+      <!-- Boutons -->
       <button class="button" onclick="getSentiment()">Tester le modèle sur un texte</button>
       <button class="button" onclick="getLastMessageSentiment()">Tester le modèle sur le dernier message Le Monde</button>
       <button class="button" onclick="getTitlesWithSentiment()">Charger les titres Le Monde avec sentiment</button>
       <button class="button" onclick="submitAnnotation()">Soumettre une annotation</button>
       <button class="button" onclick="retrainModel()">Réentraîner le modèle</button>
-      <button class="button" onclick="getWelcomeMessage()">Afficher le message de bienvenue</button> <!-- Nouveau bouton -->
+      <button class="button" onclick="checkApiStatus()">Vérifier la connexion à l'API</button>
 
+      <!-- Résultats -->
       <div id="resultat"></div>
       <div id="titres"></div>
       <div id="retrain-result"></div>
       <div id="annotation-result"></div>
-      <div id="welcome-message"></div> <!-- Div pour afficher le message de bienvenue -->
+      <div id="api-status"></div>
     </div>
   </div>
 
   <script>
-    const API_URL = "http://sentiment-theo.lab.sspcloud.fr";  // Changez l'URL si nécessaire
+    const API_URL = "https://sentiment-theo.lab.sspcloud.fr";
 
     async function getSentiment() {
-      const text = "La situation est tendue.";
-      const res = await fetch(`${API_URL}/predict_text?text=${encodeURIComponent(text)}`);
-      const data = await res.json();
-      document.getElementById("resultat").innerText = `Texte : ${data.text} \nSentiment : ${data.sentiment}`;
+      const inputText = document.getElementById("texte-input").value.trim();
+      if (!inputText) {
+        document.getElementById("resultat").innerText = "Veuillez entrer un texte à analyser.";
+        return;
+      }
+
+      try {
+        const res = await fetch(`${API_URL}/predict_text?text=${encodeURIComponent(inputText)}`);
+        if (!res.ok) throw new Error(`Erreur API : ${res.status} ${res.statusText}`);
+        const data = await res.json();
+        document.getElementById("resultat").innerText = `Texte : ${data.text}\nSentiment : ${data.sentiment}`;
+      } catch (error) {
+        document.getElementById("resultat").innerText = `Erreur : ${error.message}`;
+      }
     }
 
     async function getLastMessageSentiment() {
@@ -121,34 +138,52 @@
     }
 
     async function submitAnnotation() {
-      const annotation = {
-        text: "Ce texte est un exemple pour annotation.",
-        label: 1  // Par exemple, 1 pour un sentiment positif
-      };
-      const res = await fetch(`${API_URL}/submit_annotation`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify(annotation)
-      });
-      const data = await res.json();
-      document.getElementById("annotation-result").innerText = data.message;
+      const text = document.getElementById("annotation-text").value.trim();
+      const label = parseInt(document.getElementById("annotation-label").value);
+
+      if (!text) {
+        document.getElementById("annotation-result").innerText = "Veuillez entrer un texte à annoter.";
+        return;
+      }
+
+      const annotation = { text, label };
+
+      try {
+        const res = await fetch(`${API_URL}/submit_annotation`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(annotation)
+        });
+
+        if (!res.ok) throw new Error(`Erreur HTTP : ${res.status} ${res.statusText}`);
+
+        const data = await res.json();
+        document.getElementById("annotation-result").innerText = data.message;
+      } catch (error) {
+        document.getElementById("annotation-result").innerText = `Erreur : ${error.message}`;
+      }
     }
 
     async function retrainModel() {
-      const res = await fetch(`${API_URL}/retrain_model`, {
-        method: "POST"
-      });
+      const res = await fetch(`${API_URL}/retrain_model`, { method: "POST" });
       const data = await res.json();
       document.getElementById("retrain-result").innerText = data.message;
     }
 
-    // Nouvelle fonction pour récupérer le message de bienvenue
-    async function getWelcomeMessage() {
-      const res = await fetch(`${API_URL}/`);
-      const data = await res.json();
-      document.getElementById("welcome-message").innerText = `${data.message} \nModèle : ${data.model}`;
+    async function checkApiStatus() {
+      try {
+        const res = await fetch(`${API_URL}/`);
+        if (res.ok) {
+          const data = await res.json();
+          document.getElementById("api-status").innerText = `Connexion réussie à l'API : ${data.message}`;
+          document.getElementById("api-status").style.color = "green";
+        } else {
+          throw new Error("API non disponible");
+        }
+      } catch (error) {
+        document.getElementById("api-status").innerText = `Erreur : ${error.message}`;
+        document.getElementById("api-status").style.color = "red";
+      }
     }
   </script>
 </body>
