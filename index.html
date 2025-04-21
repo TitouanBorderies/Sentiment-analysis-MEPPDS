@@ -73,11 +73,14 @@
       <button class="button" onclick="retrainModel()">Réentraîner le modèle</button>
       <button class="button" onclick="checkApiStatus()">Vérifier la connexion à l'API</button>
 
-      <div id="resultat"></div>
-      <div id="titres"></div>
-      <div id="retrain-result"></div>
-      <div id="annotation-result"></div>
-      <div id="api-status"></div>
+      <div id="dynamic-content" style="max-height: 400px; overflow-y: auto; margin-top: 20px;">
+        <div id="resultat"></div>
+        <div id="titres"></div>
+        <div id="retrain-result"></div>
+        <div id="annotation-result"></div>
+        <div id="welcome-message"></div>
+        <div id="api-status"></div>
+      </div>
     </div>
   </div>
 
