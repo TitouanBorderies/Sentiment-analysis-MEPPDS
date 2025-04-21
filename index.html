@@ -43,15 +43,17 @@
 
     .images-section {
       display: flex;
+      flex-direction: column; /* Affichage des images en colonne */
       justify-content: center;
-      gap: 40px;
       margin-top: 30px;
+      align-items: center; /* Centrer les images */
     }
 
     .images-section img {
       max-width: 250px;
       border-radius: 10px;
       box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+      margin-bottom: 20px; /* Espacement entre les images */
     }
 
     #resultat, #titres, #retrain-result, #annotation-result {
@@ -63,7 +65,7 @@
 <body>
   <div class="container">
     <div class="card">
-      <h1>1Bienvenue 👋</h1>
+      <h1>Bienvenue 👋</h1>
       <p>Ce site permet d’interagir avec notre API de sentiment analysis et de voir les derniers titres du journal Le Monde.</p>
 
       <div class="images-section">
