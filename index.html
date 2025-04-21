@@ -165,10 +165,28 @@
     }
 
     async function retrainModel() {
-      const res = await fetch(`${API_URL}/retrain_model`, { method: "POST" });
-      const data = await res.json();
-      document.getElementById("retrain-result").innerText = data.message;
-    }
+  const resultDiv = document.getElementById("retrain-result");
+  resultDiv.innerText = "Réentrainement en cours...";
+  resultDiv.style.color = "black";
+
+  try {
+    const res = await fetch(`${API_URL}/retrain_model`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      }
+    });
+
+    if (!res.ok) throw new Error(`Erreur HTTP : ${res.status} ${res.statusText}`);
+
+    const data = await res.json();
+    resultDiv.innerText = data.message || "Modèle réentraîné avec succès.";
+    resultDiv.style.color = "green";
+  } catch (error) {
+    resultDiv.innerText = `Erreur lors du réentraînement : ${error.message}`;
+    resultDiv.style.color = "red";
+  }
+}
 
     async function checkApiStatus() {
       try {
