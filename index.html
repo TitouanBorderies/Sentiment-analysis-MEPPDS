@@ -85,12 +85,14 @@
       <button class="button" onclick="getWelcomeMessage()">Afficher le message de bienvenue</button>
       <button class="button" onclick="checkApiStatus()">Vérifier la connexion API</button> <!-- Nouveau bouton -->
 
-      <div id="resultat"></div>
-      <div id="titres"></div>
-      <div id="retrain-result"></div>
-      <div id="annotation-result"></div>
-      <div id="welcome-message"></div> <!-- Div pour afficher le message de bienvenue -->
-      <div id="api-status"></div> <!-- Div pour afficher l'état de la connexion API -->
+      <div id="dynamic-content" style="max-height: 400px; overflow-y: auto; margin-top: 20px;">
+        <div id="resultat"></div>
+        <div id="titres"></div>
+        <div id="retrain-result"></div>
+        <div id="annotation-result"></div>
+        <div id="welcome-message"></div>
+        <div id="api-status"></div>
+      </div>
     </div>
   </div>
 
