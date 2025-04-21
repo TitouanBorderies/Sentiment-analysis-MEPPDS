@@ -43,8 +43,8 @@ app.add_middleware(
 @app.get("/")
 async def welcome():
     return {
-        "message": "Welcome to the Sentiment Classification API 🎉",
-        "model": "Custom BERT Sentiment Classifier",
+        "message": "Bienvenue sur l'API de classification de sentiment 🎉 hehe",
+        "model": "Custom BERT Sentiment Classifier"
     }
 
 @app.get("/predict_last_message")
@@ -81,7 +81,8 @@ async def retrain_model():
             capture_output=True,
             text=True,
             check=True,
-            env={**os.environ, "PYTHONPATH": os.getcwd()},
+            env={**os.environ, "PYTHONPATH": os.getcwd()}  # Ajoute la racine du projet au PYTHONPATH
+
         )
         return {"message": "Retraining complete ✅", "stdout": result.stdout}
     except subprocess.CalledProcessError as e:

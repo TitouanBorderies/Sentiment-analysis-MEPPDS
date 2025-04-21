@@ -10,3 +10,4 @@ classes/__pycache__
 .env
 models_retrain
 annotations
+secret-env.yaml
