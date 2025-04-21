@@ -77,7 +77,7 @@ async def submit_annotation(data: Annotation):
 async def retrain_model():
     try:
         result = subprocess.run(
-            ["python", "scripts/retrain.py"],
+            ["python3", "scripts/retrain.py"],
             capture_output=True,
             text=True,
             check=True,
