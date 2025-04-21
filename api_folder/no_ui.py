@@ -42,7 +42,7 @@ app.add_middleware(
 @app.get("/")
 async def welcome():
     return {
-        "message": "Bienvenue sur l'API de classification de sentiment 🎉, j'adore les voituresHAHAHAHA",
+        "message": "Bienvenue sur l'API de classification de sentiment 🎉.",
         "model": "Custom BERT Sentiment Classifier"
     }
 
@@ -94,7 +94,7 @@ async def retrain_model():
             text=True,
             check=True,
             env={**os.environ, "PYTHONPATH": os.getcwd()}  # Ajoute la racine du projet au PYTHONPATH
-            
+
         )
         return {
             "message": "Réentraînement terminé ✅",
