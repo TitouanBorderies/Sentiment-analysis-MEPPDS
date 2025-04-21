@@ -98,10 +98,19 @@
   <script>
     const API_URL = "https://sentiment-theo.lab.sspcloud.fr";
 
+    // Fonction générique pour afficher un message avec un délai avant de le cacher
+    function showMessageWithTimeout(elementId, message, timeout = 5000) {
+      const element = document.getElementById(elementId);
+      element.innerText = message;
+      setTimeout(() => {
+        element.innerText = '';
+      }, timeout);
+    }
+
     async function getSentiment() {
       const inputText = document.getElementById("texte-input").value.trim();
       if (!inputText) {
-        document.getElementById("resultat").innerText = "Veuillez entrer un texte à analyser.";
+        showMessageWithTimeout("resultat", "Veuillez entrer un texte à analyser.");
         return;
       }
 
@@ -109,16 +118,16 @@
         const res = await fetch(`${API_URL}/predict_text?text=${encodeURIComponent(inputText)}`);
         if (!res.ok) throw new Error(`Erreur API : ${res.status} ${res.statusText}`);
         const data = await res.json();
-        document.getElementById("resultat").innerText = `Texte : ${data.text}\nSentiment : ${data.sentiment}`;
+        showMessageWithTimeout("resultat", `Texte : ${data.text}\nSentiment : ${data.sentiment}`);
       } catch (error) {
-        document.getElementById("resultat").innerText = `Erreur : ${error.message}`;
+        showMessageWithTimeout("resultat", `Erreur : ${error.message}`);
       }
     }
 
     async function getLastMessageSentiment() {
       const res = await fetch(`${API_URL}/predict_last_message`);
       const data = await res.json();
-      document.getElementById("resultat").innerText = `Message : ${data.message} \nSentiment : ${data.sentiment}`;
+      showMessageWithTimeout("resultat", `Message : ${data.message} \nSentiment : ${data.sentiment}`);
     }
 
     async function getTitlesWithSentiment() {
@@ -142,7 +151,7 @@
       const label = parseInt(document.getElementById("annotation-label").value);
 
       if (!text) {
-        document.getElementById("annotation-result").innerText = "Veuillez entrer un texte à annoter.";
+        showMessageWithTimeout("annotation-result", "Veuillez entrer un texte à annoter.");
         return;
       }
 
@@ -158,49 +167,36 @@
         if (!res.ok) throw new Error(`Erreur HTTP : ${res.status} ${res.statusText}`);
 
         const data = await res.json();
-        document.getElementById("annotation-result").innerText = data.message;
+        showMessageWithTimeout("annotation-result", data.message);
       } catch (error) {
-        document.getElementById("annotation-result").innerText = `Erreur : ${error.message}`;
+        showMessageWithTimeout("annotation-result", `Erreur : ${error.message}`);
       }
     }
 
     async function retrainModel() {
-  try {
-    const res = await fetch(`${API_URL}/retrain_model`, { method: "POST" });
+      try {
+        const res = await fetch(`${API_URL}/retrain_model`, { method: "POST" });
+        if (!res.ok) throw new Error(`Erreur HTTP : ${res.status} ${res.statusText}`);
 
-    // Vérifie la réponse avant d'essayer de la traiter
-    console.log('Réponse reçue:', res);
-
-    if (!res.ok) {
-      throw new Error(`Erreur HTTP : ${res.status} ${res.statusText}`);
+        const data = await res.json();
+        showMessageWithTimeout("retrain-result", `Réponse du serveur : ${data.message}\nDétails : ${JSON.stringify(data)}`);
+      } catch (error) {
+        showMessageWithTimeout("retrain-result", `Erreur : ${error.message}`);
+      }
     }
-
-    const data = await res.json();
-
-    // Afficher plus d'infos dans la console pour déboguer
-    console.log('Données retournées par l\'API :', data);
-
-    document.getElementById("retrain-result").innerText = `Réponse du serveur : ${data.message}\nDétails : ${JSON.stringify(data)}`;
-  } catch (error) {
-    console.error('Erreur lors du réentraînement du modèle :', error);
-    document.getElementById("retrain-result").innerText = `Erreur : ${error.message}`;
-  }
-}
-
-
 
     async function checkApiStatus() {
       try {
         const res = await fetch(`${API_URL}/`);
         if (res.ok) {
           const data = await res.json();
-          document.getElementById("api-status").innerText = `Connexion réussie à l'API : ${data.message}`;
+          showMessageWithTimeout("api-status", `Connexion réussie à l'API : ${data.message}`);
           document.getElementById("api-status").style.color = "green";
         } else {
           throw new Error("API non disponible");
         }
       } catch (error) {
-        document.getElementById("api-status").innerText = `Erreur : ${error.message}`;
+        showMessageWithTimeout("api-status", `Erreur : ${error.message}`);
         document.getElementById("api-status").style.color = "red";
       }
     }
