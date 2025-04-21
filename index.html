@@ -85,6 +85,7 @@
       <button class="button" onclick="submitAnnotation()">Soumettre une annotation</button>
       <button class="button" onclick="retrainModel()">Réentraîner le modèle</button>
       <button class="button" onclick="checkApiStatus()">Vérifier la connexion à l'API</button>
+      <button class="button" onclick="getAnnotations()">Afficher les annotations</button>
 
       <!-- Résultats -->
       <div id="resultat"></div>
@@ -184,6 +185,30 @@
     resultDiv.style.color = "green";
   } catch (error) {
     resultDiv.innerText = `Erreur lors du réentraînement : ${error.message}`;
+    resultDiv.style.color = "red";
+  }
+}
+
+async function getAnnotations() {
+  const resultDiv = document.getElementById("annotation-result");
+  resultDiv.innerText = "Chargement des annotations...";
+  resultDiv.style.color = "black";
+
+  try {
+    const res = await fetch(`${API_URL}/annotations`);
+    if (!res.ok) throw new Error(`Erreur HTTP : ${res.status} ${res.statusText}`);
+
+    const data = await res.json();
+
+    if (!Array.isArray(data)) {
+      throw new Error("Format de réponse inattendu");
+    }
+
+    const list = data.map((ann, i) => `${i + 1}. Texte: "${ann.text}" → Label: ${ann.label}`).join("\n");
+    resultDiv.innerText = list || "Aucune annotation enregistrée.";
+    resultDiv.style.whiteSpace = "pre-wrap"; // Pour afficher les retours à la ligne
+  } catch (error) {
+    resultDiv.innerText = `Erreur lors du chargement des annotations : ${error.message}`;
     resultDiv.style.color = "red";
   }
 }
