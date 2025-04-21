@@ -9,19 +9,17 @@
   <style>
     body {
       font-family: 'Inter', sans-serif;
-      font-size: 12px;
-      margin: 0;
-      padding: 0;
+      font-size: 14px; /* Taille de police réduite pour une meilleure lisibilité */
     }
 
     .button {
       background-color: #4A90E2;
       border: none;
       color: white;
-      padding: 6px 12px;
+      padding: 8px 16px;
       margin: 5px;
       text-align: center;
-      font-size: 12px;
+      font-size: 14px; /* Taille de police réduite pour les boutons */
       border-radius: 8px;
       cursor: pointer;
       transition: background-color 0.3s ease;
@@ -32,8 +30,8 @@
     }
 
     .input-texte {
-      padding: 6px;
-      font-size: 12px;
+      padding: 8px;
+      font-size: 14px; /* Réduction de la taille de la police pour les champs de texte */
       border: 1px solid #ccc;
       border-radius: 8px;
     }
@@ -51,59 +49,69 @@
 
     .images-section {
       display: flex;
-      flex-direction: row;
+      flex-direction: column;
+      align-items: center;
       justify-content: center;
       gap: 20px;
-      margin-top: 20px;
+      margin-top: 30px;
     }
 
     .images-section img {
-      max-width: 150px;
+      max-width: 200px; /* Réduction de la taille des images */
       border-radius: 10px;
       box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
     }
 
     #resultat, #titres, #retrain-result, #annotation-result, #api-status {
-      margin-top: 15px;
-      font-size: 12px;
+      margin-top: 20px;
+      font-size: 14px; /* Réduction de la taille de la police pour les résultats */
     }
 
     .container {
-      max-width: 1200px;
-      margin: 0 auto;
-      padding: 20px;
+  max-width: 1400px; /* élargi à 1400px */
+  width: 95vw; /* presque toute la largeur de l’écran */
+  margin: 0 auto;
+  padding: 20px 40px; /* plus de padding horizontal */
+}
+
+
+    /* Section informations */
+    .info-section {
+      margin-top: 40px;
+      text-align: center;
     }
 
-    h1 {
+    .info-section h2 {
       font-size: 18px;
-      margin-bottom: 5px;
+      margin-bottom: 10px;
     }
 
-    .header-info, .card > p {
-      font-size: 11px;
-      line-height: 1.4;
+    .info-section p {
+      font-size: 14px;
+      margin: 5px 0;
     }
 
+    /* Responsivité : ajustement de la taille de la police et des images pour les petits écrans */
     @media (max-width: 768px) {
       body {
-        font-size: 11px;
+        font-size: 12px; /* Police plus petite sur les écrans mobiles */
       }
 
       .images-section img {
-        max-width: 100px;
+        max-width: 150px; /* Réduire davantage les images sur les petits écrans */
       }
 
       .button {
-        font-size: 11px;
-        padding: 5px 10px;
+        font-size: 12px; /* Réduire la taille des boutons sur les petits écrans */
+        padding: 6px 12px;
       }
 
       .input-texte {
-        font-size: 11px;
+        font-size: 12px; /* Réduction de la taille des champs de texte sur les petits écrans */
       }
 
       .form-section input, .form-section select {
-        font-size: 11px;
+        font-size: 12px; /* Réduction de la taille des champs de sélection */
       }
     }
   </style>
@@ -114,24 +122,18 @@
       <h1>Bienvenue 👋</h1>
       <p>Ce site permet d’interagir avec notre API de sentiment analysis et de la tester sur les derniers titres du Monde.</p>
 
-      <div class="header-info">
-        <p><strong>Auteurs :</strong> Titouan BORDERIES & Théo Gaboriaud</p>
-        <p><strong>Projet :</strong> Le Monde Sentiment Analysis</p>
-        <p><strong>Cours :</strong> Mise en production de projets de Data Science</p>
-      </div>
-
       <div class="images-section">
         <img src="https://sesameworkshop.org/wp-content/uploads/2023/03/presskit_ss_bio_bert.png" alt="Logo Le Monde">
         <img src="https://storage.googleapis.com/media-newsinitiative/images/Le_Monde_Logo.original.png" alt="BERT illustration">
       </div>
 
-      <!-- Tester le modèle -->
+      <!-- Section pour tester le modèle sur un texte -->
       <div class="form-section">
         <input type="text" id="texte-input" class="input-texte" placeholder="Entrez votre texte ici..." />
         <button class="button" onclick="getSentiment()">Tester le modèle sur votre phrase</button>
       </div>
 
-      <!-- Annotation -->
+      <!-- Section pour l'annotation -->
       <div class="form-section">
         <input type="text" id="annotation-text" class="input-texte" placeholder="Texte à annoter" />
         <select id="annotation-label" class="input-texte">
@@ -142,7 +144,7 @@
         <button class="button" onclick="submitAnnotation()">Nouvelle annotation</button>
       </div>
 
-      <!-- Boutons -->
+      <!-- Boutons pour les autres fonctionnalités -->
       <button class="button" onclick="getLastMessageSentiment()">Dernier titre du Monde</button>
       <button class="button" onclick="getTitlesWithSentiment()">Les dix derniers titres du Monde</button>
       <button class="button" onclick="retrainModel()">Réentraîner le modèle</button>
@@ -154,12 +156,21 @@
       <div id="retrain-result"></div>
       <div id="annotation-result"></div>
       <div id="api-status"></div>
+
+      <!-- Section informations sur le projet -->
+      <div class="info-section">
+        <h2>Informations sur le projet</h2>
+        <p><strong>Auteurs : </strong>Titouan BORDERIES et Théo Gaboriaud</p>
+        <p><strong>Projet : </strong>Le Monde Sentiment Analysis</p>
+        <p><strong>Cours : </strong>Mise en production de projets de Data Science</p>
+      </div>
     </div>
   </div>
 
   <script>
     const API_URL = "https://sentiment-theo.lab.sspcloud.fr";
 
+    // Fonction générique pour afficher un message avec un délai avant de le cacher
     function showMessageWithTimeout(elementId, message, timeout = 5000) {
       const element = document.getElementById(elementId);
       element.innerText = message;
@@ -186,13 +197,9 @@
     }
 
     async function getLastMessageSentiment() {
-      try {
-        const res = await fetch(`${API_URL}/predict_last_message`);
-        const data = await res.json();
-        showMessageWithTimeout("resultat", `Message : ${data.message} \nSentiment : ${data.sentiment}`);
-      } catch (error) {
-        showMessageWithTimeout("resultat", `Erreur : ${error.message}`);
-      }
+      const res = await fetch(`${API_URL}/predict_last_message`);
+      const data = await res.json();
+      showMessageWithTimeout("resultat", `Message : ${data.message} \nSentiment : ${data.sentiment}`);
     }
 
     async function getTitlesWithSentiment() {
