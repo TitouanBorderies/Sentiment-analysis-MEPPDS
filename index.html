@@ -198,32 +198,27 @@
     }
 
     async function loadAnnotations() {
-  try {
-    // Utilisation de l'URL de l'API pour récupérer les annotations (assume que l'API renvoie un fichier JSON ou le transforme en JSON)
-    const res = await fetch("/annotations/annotations.jsonl");
+      try {
+        const res = await fetch(`${API_URL}/annotations`);
+        if (!res.ok) {
+          throw new Error(`Erreur HTTP : ${res.status} ${res.statusText}`);
+        }
 
-    if (!res.ok) {
-      throw new Error(`Erreur HTTP : ${res.status} ${res.statusText}`);
+        const data = await res.json();
+        const annotationsContainer = document.getElementById("annotations-list");
+        annotationsContainer.innerHTML = "<h3>Annotations</h3>";
+
+        data.annotations.forEach(annotation => {
+          const div = document.createElement("div");
+          div.classList.add("annotation-item");
+          div.innerHTML = `<strong>Text:</strong> ${annotation.text}<br><strong>Label:</strong> ${annotation.label}`;
+          annotationsContainer.appendChild(div);
+        });
+      } catch (error) {
+        console.error("Erreur lors du chargement des annotations :", error);
+        document.getElementById("annotations-list").innerText = `Erreur lors du chargement des annotations : ${error.message}`;
+      }
     }
-
-    const data = await res.json();
-
-    // Vérifie si des annotations existent
-    const annotationsContainer = document.getElementById("annotations-list");
-    annotationsContainer.innerHTML = "<h3>Annotations</h3>";
-
-    // Parcours des annotations et affiche chaque annotation
-    data.annotations.forEach(annotation => {
-      const div = document.createElement("div");
-      div.classList.add("annotation-item");
-      div.innerHTML = `<strong>Texte :</strong> ${annotation.text}<br><strong>Label :</strong> ${annotation.label}`;
-      annotationsContainer.appendChild(div);
-    });
-  } catch (error) {
-    console.error("Erreur lors du chargement des annotations :", error);
-    document.getElementById("annotations-list").innerText = `Erreur lors du chargement des annotations : ${error.message}`;
-  }
-}
   </script>
 </body>
 </html>
