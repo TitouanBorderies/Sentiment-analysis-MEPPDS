@@ -166,41 +166,27 @@
 
     async function retrainModel() {
   try {
-    console.log("Envoi de la requête de réentrainement à l'API...");
-
     const res = await fetch(`${API_URL}/retrain_model`, { method: "POST" });
 
-    // Vérifier si la réponse a échoué
-    if (!res.ok) {
-      console.error("Erreur lors de la réponse de l'API :", res.status, res.statusText);
-      document.getElementById("retrain-result").innerText = `Erreur HTTP : ${res.status} ${res.statusText}`;
-      return;
-    }
+    // Vérifie la réponse avant d'essayer de la traiter
+    console.log('Réponse reçue:', res);
 
-    console.log("Réponse reçue de l'API, traitement en cours...");
+    if (!res.ok) {
+      throw new Error(`Erreur HTTP : ${res.status} ${res.statusText}`);
+    }
 
     const data = await res.json();
-    console.log("Données de la réponse :", data);
 
-    if (data.message) {
-      // Affichage du message de succès ou d'erreur sur la page
-      document.getElementById("retrain-result").innerText = data.message;
-    }
+    // Afficher plus d'infos dans la console pour déboguer
+    console.log('Données retournées par l\'API :', data);
 
-    if (data.stdout) {
-      console.log("Sortie standard de la commande (stdout) :", data.stdout);
-      document.getElementById("retrain-result").innerText += `\nSortie du modèle : ${data.stdout}`;
-    }
-
-    if (data.stderr) {
-      console.error("Erreur lors de l'exécution du processus de réentrainement (stderr) :", data.stderr);
-      document.getElementById("retrain-result").innerText += `\nErreur du modèle : ${data.stderr}`;
-    }
+    document.getElementById("retrain-result").innerText = `Réponse du serveur : ${data.message}\nDétails : ${JSON.stringify(data)}`;
   } catch (error) {
-    console.error("Erreur lors de l'appel à l'API de réentrainement :", error);
-    document.getElementById("retrain-result").innerText = `Erreur lors de la requête : ${error.message}`;
+    console.error('Erreur lors du réentraînement du modèle :', error);
+    document.getElementById("retrain-result").innerText = `Erreur : ${error.message}`;
   }
 }
+
 
 
     async function checkApiStatus() {
