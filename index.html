@@ -24,21 +24,13 @@
       background-color: #357ABD;
     }
 
-    .titre-section {
-      margin-top: 30px;
-      padding: 15px;
-      background-color: #f1f5f9;
-      border-radius: 10px;
-    }
-
-    .titre-section h2 {
-      font-size: 20px;
-      margin-bottom: 10px;
-    }
-
-    .titre {
-      margin-bottom: 5px;
-      font-weight: 500;
+    .input-texte {
+      width: 100%;
+      padding: 10px;
+      margin: 10px 0;
+      font-size: 16px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
     }
 
     .images-section {
@@ -71,6 +63,9 @@
         <img src="https://storage.googleapis.com/media-newsinitiative/images/Le_Monde_Logo.original.png" alt="BERT illustration">
       </div>
 
+      <!-- Champ de texte pour entrer une phrase -->
+      <input type="text" id="texte-input" class="input-texte" placeholder="Entrez votre texte ici..." />
+
       <button class="button" onclick="getSentiment()">Tester le modèle sur un texte</button>
       <button class="button" onclick="getLastMessageSentiment()">Tester le modèle sur le dernier message Le Monde</button>
       <button class="button" onclick="getTitlesWithSentiment()">Charger les titres Le Monde avec sentiment</button>
@@ -87,13 +82,27 @@
   </div>
 
   <script>
-    const API_URL = "https://sentiment-theo.lab.sspcloud.fr";  // Changez l'URL si nécessaire
+    const API_URL = "https://sentiment-theo.lab.sspcloud.fr";
 
     async function getSentiment() {
-      const text = "La situation est tendue.";
-      const res = await fetch(`${API_URL}/predict_text?text=${encodeURIComponent(text)}`);
-      const data = await res.json();
-      document.getElementById("resultat").innerText = `Texte : ${data.text} \nSentiment : ${data.sentiment}`;
+      const inputText = document.getElementById("texte-input").value.trim();
+      if (!inputText) {
+        document.getElementById("resultat").innerText = "Veuillez entrer un texte à analyser.";
+        return;
+      }
+
+      try {
+        console.log("Texte envoyé à l'API :", inputText);
+        const res = await fetch(`${API_URL}/predict_text?text=${encodeURIComponent(inputText)}`);
+        if (!res.ok) {
+          throw new Error(`Erreur API : ${res.status} ${res.statusText}`);
+        }
+        const data = await res.json();
+        document.getElementById("resultat").innerText = `Texte : ${data.text}\nSentiment : ${data.sentiment}`;
+      } catch (error) {
+        console.error("Erreur dans getSentiment :", error);
+        document.getElementById("resultat").innerText = `Erreur lors de la requête : ${error.message}`;
+      }
     }
 
     async function getLastMessageSentiment() {
@@ -119,42 +128,40 @@
     }
 
     async function submitAnnotation() {
-    const annotation = {
-      text: "Ce texte est un exemple pour annotation.",
-      label: 1  // Par exemple, 1 pour un sentiment positif
-    };
+      const annotation = {
+        text: "Ce texte est un exemple pour annotation.",
+        label: 1
+      };
 
-    console.log("Envoi de l'annotation :", annotation);
+      console.log("Envoi de l'annotation :", annotation);
 
-    try {
-      const res = await fetch(`${API_URL}/submit_annotation`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify(annotation)
-      });
+      try {
+        const res = await fetch(`${API_URL}/submit_annotation`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify(annotation)
+        });
 
-      console.log("Réponse brute de l'API :", res);
+        console.log("Réponse brute de l'API :", res);
 
-      if (!res.ok) {
-        throw new Error(`Erreur HTTP : ${res.status} ${res.statusText}`);
+        if (!res.ok) {
+          throw new Error(`Erreur HTTP : ${res.status} ${res.statusText}`);
+        }
+
+        const data = await res.json();
+        console.log("Réponse JSON :", data);
+
+        document.getElementById("annotation-result").innerText = data.message;
+      } catch (error) {
+        console.error("Erreur lors de l'envoi de l'annotation :", error);
+        document.getElementById("annotation-result").innerText = `Erreur lors de l'envoi : ${error.message}`;
       }
-
-      const data = await res.json();
-      console.log("Réponse JSON :", data);
-
-      document.getElementById("annotation-result").innerText = data.message;
-    } catch (error) {
-      console.error("Erreur lors de l'envoi de l'annotation :", error);
-      document.getElementById("annotation-result").innerText = `Erreur lors de l'envoi : ${error.message}`;
     }
-  }
 
     async function retrainModel() {
-      const res = await fetch(`${API_URL}/retrain_model`, {
-        method: "POST"
-      });
+      const res = await fetch(`${API_URL}/retrain_model`, { method: "POST" });
       const data = await res.json();
       document.getElementById("retrain-result").innerText = data.message;
     }
@@ -170,8 +177,8 @@
           throw new Error("API non disponible");
         }
       } catch (error) {
-        console.log('Détails de l\'erreur de connexion à l\'API :', error); // Affiche plus de détails sur l'erreur
-        document.getElementById("api-status").innerText = `Erreur de connexion à l'API : ${error.message}`;
+        console.log("Détails de l'erreur :", error);
+        document.getElementById("api-status").innerText = `Erreur : ${error.message}`;
         document.getElementById("api-status").style.color = "red";
       }
     }
